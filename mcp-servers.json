@@ -1,0 +1,15 @@
+{
+  "servers": [
+    {
+      "id": "notion-mcp",
+      "name": "Notion MCP",
+      "url": "https://mcp.notion.com/mcp",
+      "auth_type": "oauth_2.1",
+      "key": null,
+      "active": true,
+      "description": "Official Notion MCP server for database and page operations",
+      "version": "1.0.0",
+      "capabilities": ["database", "page", "search", "template"]
+    }
+  ]
+}
