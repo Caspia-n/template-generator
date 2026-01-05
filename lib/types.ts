@@ -1,4 +1,5 @@
 // Core Types for Notion Template Generator
+import React from 'react';
 
 export interface Template {
   id: string;
@@ -236,6 +237,9 @@ export interface LoadingStateProps {
   isLoading: boolean;
   message?: string;
   progress?: number;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'spinner' | 'skeleton' | 'pulse' | 'progress';
+  children?: React.ReactNode;
 }
 
 export interface ErrorBoundaryState {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Card, CardBody, Chip, Dropdown, DropdownMenu, DropdownItem, DropdownTrigger } from '@heroui';
+import { Button, Card, CardBody, Chip, Dropdown, DropdownMenu, DropdownItem, DropdownTrigger } from '';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Eye, 

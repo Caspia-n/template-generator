@@ -1,7 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import type { LoadingStateProps } from '@/lib/types';
+import React from 'react';
+
+interface LoadingStateProps {
+  isLoading: boolean;
+  message?: string;
+  progress?: number;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'spinner' | 'skeleton' | 'pulse' | 'progress';
+  children?: React.ReactNode;
+}
 
 /**
  * Reusable loading state component with multiple variants
@@ -173,11 +181,11 @@ export function NotionConnectionLoading() {
   );
 }
 
-export function PageLoading() {
+export function PageLoading({ message = "Loading page..." }: { message?: string }) {
   return (
     <LoadingState
       isLoading={true}
-      message="Loading page..."
+      message={message}
       variant="skeleton"
       size="sm"
     />

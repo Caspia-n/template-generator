@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Button } from '@heroui';
+import { Button } from '';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Download, Share2, ExternalLink, Copy, Loader2 } from 'lucide-react';
 import { TemplatePreview } from '@/components/TemplatePreview';

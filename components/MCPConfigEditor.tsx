@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Textarea, Select, SelectItem, Switch, Card, CardBody, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@heroui';
+import { Button, Input, Textarea, Select, SelectItem, Switch, Card, CardBody, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 

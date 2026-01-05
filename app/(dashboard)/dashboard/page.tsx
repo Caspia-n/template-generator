@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@heroui';
+import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { 
   Plus, 

@@ -7,10 +7,6 @@ import type { GenerationResponse, ApiResponse } from '@/lib/types';
  * Toast notification hooks for the application
  */
 export function useToasts() {
-  const showLoading = (message: string) => {
-    return toast.loading(message);
-  };
-
   const showSuccess = (message: string, duration?: number) => {
     toast.success(message, { duration });
   };
@@ -42,7 +38,7 @@ export function useToasts() {
     return toast.loading(message);
   };
 
-  const dismiss = (toastId?: string | number) => {
+  const dismiss = (toastId?: string | number | undefined) => {
     toast.dismiss(toastId);
   };
 
@@ -196,6 +192,42 @@ export const toasts = {
 
   progressComplete: (step: string) => {
     toast.success(`${step} completed!`, { id: 'progress' });
+  },
+
+  // Additional utility functions
+  showSuccess: (message: string, duration?: number) => {
+    toast.success(message, { duration });
+  },
+
+  showError: (message: string, duration?: number) => {
+    toast.error(message, { duration });
+  },
+
+  showInfo: (message: string, duration?: number) => {
+    toast(message, { 
+      duration,
+      icon: 'ℹ️',
+    });
+  },
+
+  showWarning: (message: string, duration?: number) => {
+    toast(message, { 
+      duration,
+      icon: '⚠️',
+      style: {
+        background: '#fef3c7',
+        color: '#92400e',
+        border: '1px solid #f59e0b',
+      },
+    });
+  },
+
+  showLoading: (message: string) => {
+    return toast.loading(message);
+  },
+
+  dismiss: (toastId?: string | number | undefined) => {
+    toast.dismiss(toastId);
   },
 };
 

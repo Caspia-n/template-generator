@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Card, CardBody, Input, Select, SelectItem, Chip, Avatar } from '@heroui';
+import { Button, Card, CardBody, Input, Select, SelectItem, Chip, Avatar } from '';
 import { motion } from 'framer-motion';
 import { 
   Plus, 
