@@ -1,18 +1,18 @@
-import { Client } from '@notionhq/client';
-import type { 
-  NotionPageCreate, 
-  NotionPageResponse, 
-  NotionAuthResponse, 
-  Template, 
-  TemplateBlock 
-} from '@/lib/types';
+import { Client } from "@notionhq/client";
+import type {
+  NotionPageCreate,
+  NotionPageResponse,
+  NotionAuthResponse,
+  Template,
+  TemplateBlock,
+} from "@/lib/types";
 
 /**
  * Create a Notion client with the configured API version
  */
 export function createNotionClient(token?: string): Client {
-  const apiVersion = process.env.NOTION_API_VERSION || '2025-09-03';
-  
+  const apiVersion = process.env.NOTION_API_VERSION || "2025-09-03";
+
   return new Client({
     auth: token || process.env.NOTION_TOKEN,
     notionVersion: apiVersion,
@@ -22,16 +22,18 @@ export function createNotionClient(token?: string): Client {
 /**
  * Test Notion API authentication
  */
-export async function testNotionAuth(token?: string): Promise<NotionAuthResponse> {
+export async function testNotionAuth(
+  token?: string
+): Promise<NotionAuthResponse> {
   try {
     const client = createNotionClient(token);
-    
+
     // Get user info to test auth
     const user = await client.users.me({});
-    
+
     // Get workspace info
     const workspaces = await client.users.list({});
-    
+
     return {
       success: true,
       user_id: user.id,
@@ -39,11 +41,11 @@ export async function testNotionAuth(token?: string): Promise<NotionAuthResponse
       workspace_name: workspaces.results[0]?.name || undefined,
     };
   } catch (error) {
-    console.error('Notion auth test failed:', error);
-    
+    console.error("Notion auth test failed:", error);
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Authentication failed',
+      error: error instanceof Error ? error.message : "Authentication failed",
     };
   }
 }
@@ -54,14 +56,14 @@ export async function testNotionAuth(token?: string): Promise<NotionAuthResponse
 function convertBlocksToNotion(blocks: TemplateBlock[]): any[] {
   return blocks.map((block) => {
     switch (block.type) {
-      case 'heading':
+      case "heading":
         return {
-          object: 'block',
-          type: 'heading_1',
+          object: "block",
+          type: "heading_1",
           heading_1: {
             rich_text: [
               {
-                type: 'text',
+                type: "text",
                 text: {
                   content: block.content,
                 },
@@ -70,14 +72,14 @@ function convertBlocksToNotion(blocks: TemplateBlock[]): any[] {
           },
         };
 
-      case 'paragraph':
+      case "paragraph":
         return {
-          object: 'block',
-          type: 'paragraph',
+          object: "block",
+          type: "paragraph",
           paragraph: {
             rich_text: [
               {
-                type: 'text',
+                type: "text",
                 text: {
                   content: block.content,
                 },
@@ -86,48 +88,48 @@ function convertBlocksToNotion(blocks: TemplateBlock[]): any[] {
           },
         };
 
-      case 'database':
+      case "database":
         return {
-          object: 'block',
-          type: 'callout',
+          object: "block",
+          type: "callout",
           callout: {
             rich_text: [
               {
-                type: 'text',
+                type: "text",
                 text: {
                   content: `📊 Database: ${block.content}`,
                 },
               },
             ],
-            icon: { type: 'emoji', emoji: '📊' },
+            icon: { type: "emoji", emoji: "📊" },
           },
         };
 
-      case 'table':
+      case "table":
         return {
-          object: 'block',
-          type: 'callout',
+          object: "block",
+          type: "callout",
           callout: {
             rich_text: [
               {
-                type: 'text',
+                type: "text",
                 text: {
                   content: `📋 Table: ${block.content}`,
                 },
               },
             ],
-            icon: { type: 'emoji', emoji: '📋' },
+            icon: { type: "emoji", emoji: "📋" },
           },
         };
 
       default:
         return {
-          object: 'block',
-          type: 'paragraph',
+          object: "block",
+          type: "paragraph",
           paragraph: {
             rich_text: [
               {
-                type: 'text',
+                type: "text",
                 text: {
                   content: block.content,
                 },
@@ -145,30 +147,33 @@ function convertBlocksToNotion(blocks: TemplateBlock[]): any[] {
 export async function createNotionPage(
   template: Template,
   parentOptions?: {
-    parent_type?: 'workspace' | 'page_id' | 'database_id';
+    parent_type?: "workspace" | "page_id" | "database_id";
     parent_id?: string;
   }
 ): Promise<NotionPageResponse> {
   try {
     const client = createNotionClient();
-    
+
     // Determine parent
     let parent: any;
-    
+
     if (parentOptions?.parent_type && parentOptions?.parent_id) {
       switch (parentOptions.parent_type) {
-        case 'page_id':
-          parent = { type: 'page_id', page_id: parentOptions.parent_id };
+        case "page_id":
+          parent = { type: "page_id", page_id: parentOptions.parent_id };
           break;
-        case 'database_id':
-          parent = { type: 'database_id', database_id: parentOptions.parent_id };
+        case "database_id":
+          parent = {
+            type: "database_id",
+            database_id: parentOptions.parent_id,
+          };
           break;
         default:
-          parent = { type: 'workspace', workspace: true };
+          parent = { type: "workspace", workspace: true };
       }
     } else {
       // Default to workspace
-      parent = { type: 'workspace', workspace: true };
+      parent = { type: "workspace", workspace: true };
     }
 
     // Create page properties
@@ -217,33 +222,43 @@ export async function createNotionPage(
       properties: (response as any).properties,
     };
   } catch (error) {
-    console.error('Failed to create Notion page:', error);
-    throw new Error(`Failed to create Notion page: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("Failed to create Notion page:", error);
+    throw new Error(
+      `Failed to create Notion page: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 }
 
 /**
  * Share a Notion page publicly
  */
-export async function shareNotionPage(pageId: string): Promise<{ url: string }> {
+export async function shareNotionPage(
+  pageId: string
+): Promise<{ url: string }> {
   try {
     const client = createNotionClient();
-    
+
     // Get page info
     const page = await client.pages.retrieve({ page_id: pageId });
-    
+
     // Notion API doesn't have a direct "share publicly" endpoint
     // Instead, we return the page URL which can be shared
     // Users can manually set sharing permissions in Notion
-    
+
     const pageUrl = (page as any).url;
-    
+
     return {
       url: pageUrl,
     };
   } catch (error) {
-    console.error('Failed to get page share info:', error);
-    throw new Error(`Failed to get page share info: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("Failed to get page share info:", error);
+    throw new Error(
+      `Failed to get page share info: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 }
 
@@ -253,34 +268,40 @@ export async function shareNotionPage(pageId: string): Promise<{ url: string }> 
 export async function listUserPages(limit = 50): Promise<any[]> {
   try {
     const client = createNotionClient();
-    
+
     // Search for pages and databases
     const response = await client.search({
       filter: {
-        property: 'object',
-        value: 'page',
+        property: "object",
+        value: "page",
       },
       sort: {
-        direction: 'descending',
-        timestamp: 'last_edited_time',
+        direction: "descending",
+        timestamp: "last_edited_time",
       },
       page_size: limit,
     });
 
     return response.results;
   } catch (error) {
-    console.error('Failed to list user pages:', error);
-    throw new Error(`Failed to list user pages: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("Failed to list user pages:", error);
+    throw new Error(
+      `Failed to list user pages: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 }
 
 /**
  * Get template structure from an existing Notion page
  */
-export async function extractTemplateFromPage(pageId: string): Promise<Partial<Template>> {
+export async function extractTemplateFromPage(
+  pageId: string
+): Promise<Partial<Template>> {
   try {
     const client = createNotionClient();
-    
+
     // Get page blocks
     const blocks = await client.blocks.children.list({
       block_id: pageId,
@@ -288,59 +309,71 @@ export async function extractTemplateFromPage(pageId: string): Promise<Partial<T
 
     // Convert Notion blocks back to our template format
     const templateBlocks: TemplateBlock[] = blocks.results.map((block: any) => {
-      const blockType = Object.keys(block).find(key => 
-        ['heading_1', 'heading_2', 'heading_3', 'paragraph', 'divider', 'image', 'quote', 'code'].includes(key)
+      const blockType = Object.keys(block).find((key) =>
+        [
+          "heading_1",
+          "heading_2",
+          "heading_3",
+          "paragraph",
+          "divider",
+          "image",
+          "quote",
+          "code",
+        ].includes(key)
       );
 
       if (!blockType) {
         return {
           id: block.id,
-          type: 'paragraph',
-          content: 'Unknown block type',
+          type: "paragraph",
+          content: "Unknown block type",
         };
       }
 
       const blockContent = block[blockType];
-      let content = '';
-      let type: TemplateBlock['type'] = 'paragraph';
+      let content = "";
+      let type: TemplateBlock["type"] = "paragraph";
       let level = 1;
 
       if (blockContent.rich_text) {
         content = blockContent.rich_text
-          .map((richText: any) => richText.plain_text || richText.text?.content || '')
-          .join('');
+          .map(
+            (richText: any) =>
+              richText.plain_text || richText.text?.content || ""
+          )
+          .join("");
       } else if (blockContent.external?.url) {
         content = blockContent.external.url;
       }
 
       switch (blockType) {
-        case 'heading_1':
-          type = 'heading';
+        case "heading_1":
+          type = "heading";
           level = 1;
           break;
-        case 'heading_2':
-          type = 'heading';
+        case "heading_2":
+          type = "heading";
           level = 2;
           break;
-        case 'heading_3':
-          type = 'heading';
+        case "heading_3":
+          type = "heading";
           level = 3;
           break;
-        case 'divider':
-          type = 'divider';
-          content = '';
+        case "divider":
+          type = "divider";
+          content = "";
           break;
-        case 'image':
-          type = 'image';
+        case "image":
+          type = "image";
           break;
-        case 'quote':
-          type = 'quote';
+        case "quote":
+          type = "quote";
           break;
-        case 'code':
-          type = 'code';
+        case "code":
+          type = "code";
           break;
         default:
-          type = 'paragraph';
+          type = "paragraph";
       }
 
       return {
@@ -355,8 +388,8 @@ export async function extractTemplateFromPage(pageId: string): Promise<Partial<T
     const page = await client.pages.retrieve({ page_id: pageId });
     const properties = (page as any).properties;
 
-    let title = 'Untitled';
-    let description = '';
+    let title = "Untitled";
+    let description = "";
 
     if (properties.title?.title?.[0]?.plain_text) {
       title = properties.title.title[0].plain_text;
@@ -370,12 +403,15 @@ export async function extractTemplateFromPage(pageId: string): Promise<Partial<T
       title,
       description,
       blocks: templateBlocks,
-      created_at: (page as any).created_time,
-      updated_at: (page as any).last_edited_time,
-      notion_page_id: pageId,
+      createdAt: (page as any).created_time,
+      notionPageId: pageId,
     };
   } catch (error) {
-    console.error('Failed to extract template from page:', error);
-    throw new Error(`Failed to extract template: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error("Failed to extract template from page:", error);
+    throw new Error(
+      `Failed to extract template: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 }

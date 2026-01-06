@@ -1,6 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Button, Card, Divider, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
+import {
+  Button,
+  Card,
+  Divider,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from "@heroui/react";
 import { useToast } from "./Toasts";
 import { motion } from "framer-motion";
 
@@ -24,7 +34,9 @@ export function ModelPicker() {
     }
   }, []);
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -41,18 +53,20 @@ export function ModelPicker() {
 
       // Store file path info
       const path = (file as any).path || file.webkitRelativePath || file.name;
-      
+
       // Save to localStorage
       localStorage.setItem("selectedModelPath", path);
       localStorage.setItem("selectedModelName", file.name);
-      
+
       setModelPath(path);
       setModelName(file.name);
       setIsOpen(false);
-      
+
       toast.success(`Model selected: ${file.name}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to select model");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to select model"
+      );
     } finally {
       setIsValidating(false);
     }
@@ -80,18 +94,20 @@ export function ModelPicker() {
 
       // Extract filename from path
       const filename = manualPath.split("/").pop() || "Model";
-      
+
       localStorage.setItem("selectedModelPath", manualPath);
       localStorage.setItem("selectedModelName", filename);
-      
+
       setModelPath(manualPath);
       setModelName(filename);
       setManualPath("");
       setIsOpen(false);
-      
+
       toast.success(`Model selected: ${filename}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to validate model");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to validate model"
+      );
     } finally {
       setIsValidating(false);
     }
@@ -120,13 +136,21 @@ export function ModelPicker() {
               <p className="text-sm text-slate-400">AI Model</p>
               {modelPath ? (
                 <>
-                  <p className="text-lg font-semibold text-green-400">{modelName}</p>
-                  <p className="text-xs text-slate-500 mt-1">Ready to generate</p>
+                  <p className="text-lg font-semibold text-green-400">
+                    {modelName}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Ready to generate
+                  </p>
                 </>
               ) : (
                 <>
-                  <p className="text-lg font-semibold text-yellow-400">No Model Selected</p>
-                  <p className="text-xs text-slate-400 mt-1">Click below to select a GGUF model</p>
+                  <p className="text-lg font-semibold text-yellow-400">
+                    No Model Selected
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Click below to select a GGUF model
+                  </p>
                 </>
               )}
             </div>
@@ -162,24 +186,39 @@ export function ModelPicker() {
             <div className="space-y-6">
               {/* Instructions */}
               <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
-                <p className="text-sm font-semibold text-blue-300 mb-2">📝 Instructions</p>
+                <p className="text-sm font-semibold text-blue-300 mb-2">
+                  📝 Instructions
+                </p>
                 <ol className="text-xs text-slate-300 space-y-1 list-decimal list-inside">
-                  <li>Download a GGUF model (e.g., Qwen3-30B) from Hugging Face</li>
+                  <li>
+                    Download a GGUF model (e.g., Qwen3-30B) from Hugging Face
+                  </li>
                   <li>Save it to your local machine</li>
-                  <li>Select it below using the file picker or enter the path manually</li>
+                  <li>
+                    Select it below using the file picker or enter the path
+                    manually
+                  </li>
                 </ol>
               </div>
 
               {/* File Picker */}
               <div>
                 <p className="text-sm font-medium mb-2">Upload from Computer</p>
-                <Input
-                  type="file"
-                  accept=".gguf"
-                  onChange={handleFileSelect}
-                  isDisabled={isValidating}
-                  className="cursor-pointer"
-                />
+                <div className="relative group">
+                  <input
+                    type="file"
+                    accept=".gguf"
+                    onChange={handleFileSelect}
+                    disabled={isValidating}
+                    className="block w-full text-sm text-slate-400
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-medium file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-primary-500 file:text-white
+                      hover:file:bg-primary-600
+                      cursor-pointer disabled:opacity-50"
+                  />
+                </div>
               </div>
 
               <Divider />
@@ -208,7 +247,8 @@ export function ModelPicker() {
               {/* Help Text */}
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-3">
                 <p className="text-xs text-slate-400">
-                  <strong>Requirements:</strong> GGUF format, minimum 100MB, compatible with llama.cpp
+                  <strong>Requirements:</strong> GGUF format, minimum 100MB,
+                  compatible with llama.cpp
                 </p>
               </div>
             </div>

@@ -1,43 +1,56 @@
-'use client'
+"use client";
 
-import dynamic from 'next/dynamic'
-import type { ExtendedRecordMap } from 'notion-types'
-import type { Template, TemplateBlock } from '@/lib/types'
-import { Button, Card, Divider } from '@heroui/react'
-import { useRouter } from 'next/navigation'
-import { useToast } from './Toasts'
-import { useMemo } from 'react'
-import { useTheme } from 'next-themes'
-import { Copy, Download, LayoutDashboard } from 'lucide-react'
-import { motion } from 'framer-motion'
+import dynamic from "next/dynamic";
+import type { ExtendedRecordMap } from "notion-types";
+import type { Template, TemplateBlock } from "@/lib/types";
+import { Button, Card, Divider } from "@heroui/react";
+import { useRouter } from "next/navigation";
+import { useToast } from "./Toasts";
+import { useMemo } from "react";
+import { useTheme } from "next-themes";
+import { Copy, Download, LayoutDashboard } from "lucide-react";
+import { motion } from "framer-motion";
 
-const NotionRenderer = dynamic(async () => (await import('react-notion-x')).NotionRenderer, { ssr: false })
+const NotionRenderer = dynamic(
+  async () => (await import("react-notion-x")).NotionRenderer,
+  { ssr: false }
+);
 
 function blockToNotionType(block: TemplateBlock): string {
   switch (block.type) {
-    case 'heading':
-      return 'header'
-    case 'paragraph':
-      return 'text'
-    case 'database':
-      return 'callout'
-    case 'table':
-      return 'callout'
+    case "heading":
+      return "header";
+    case "paragraph":
+      return "text";
+    case "database":
+      return "callout";
+    case "table":
+      return "callout";
+    case "divider":
+      return "divider";
+    case "image":
+      return "image";
+    case "quote":
+      return "quote";
+    case "code":
+      return "code";
+    default:
+      return "text";
   }
 }
 
 function buildRecordMap(template: Template): ExtendedRecordMap {
-  const pageId = template.id
-  const now = Date.now()
+  const pageId = template.id;
+  const now = Date.now();
 
-  const contentIds = template.blocks.map((b) => b.id)
+  const contentIds = template.blocks.map((b) => b.id);
 
   const block: Record<string, any> = {
     [pageId]: {
       value: {
         id: pageId,
         version: 1,
-        type: 'page',
+        type: "page",
         properties: {
           title: [[template.title]],
         },
@@ -45,36 +58,39 @@ function buildRecordMap(template: Template): ExtendedRecordMap {
         created_time: now,
         last_edited_time: now,
         parent_id: pageId,
-        parent_table: 'space',
+        parent_table: "space",
         alive: true,
       },
     },
-  }
+  };
 
   for (const b of template.blocks) {
-    const type = blockToNotionType(b)
+    const type = blockToNotionType(b);
 
-    if (type === 'callout') {
-      const calloutText = b.type === 'database' ? `Database: ${b.content}` : `Table: ${b.content}`
+    if (type === "callout") {
+      const calloutText =
+        b.type === "database"
+          ? `Database: ${b.content}`
+          : `Table: ${b.content}`;
       block[b.id] = {
         value: {
           id: b.id,
           version: 1,
-          type: 'callout',
+          type: "callout",
           parent_id: pageId,
-          parent_table: 'block',
+          parent_table: "block",
           alive: true,
           created_time: now,
           last_edited_time: now,
           format: {
-            block_color: 'gray_background',
+            block_color: "gray_background",
           },
           properties: {
             title: [[calloutText]],
           },
         },
-      }
-      continue
+      };
+      continue;
     }
 
     block[b.id] = {
@@ -83,7 +99,7 @@ function buildRecordMap(template: Template): ExtendedRecordMap {
         version: 1,
         type,
         parent_id: pageId,
-        parent_table: 'block',
+        parent_table: "block",
         alive: true,
         created_time: now,
         last_edited_time: now,
@@ -91,48 +107,52 @@ function buildRecordMap(template: Template): ExtendedRecordMap {
           title: [[b.content]],
         },
       },
-    }
+    };
   }
 
-  return { block } as ExtendedRecordMap
+  return { block } as ExtendedRecordMap;
 }
 
 export function TemplatePreview({ template }: { template: Template }) {
-  const router = useRouter()
-  const toast = useToast()
-  const { resolvedTheme } = useTheme()
+  const router = useRouter();
+  const toast = useToast();
+  const { resolvedTheme } = useTheme();
 
-  const recordMap = useMemo(() => buildRecordMap(template), [template])
+  const recordMap = useMemo(() => buildRecordMap(template), [template]);
 
   const shareLink = useMemo(() => {
-    if (template.sharedUrl) return template.sharedUrl
-    if (typeof window === 'undefined') return `/preview/${template.id}`
-    return `${window.location.origin}/preview/${template.id}`
-  }, [template.id, template.sharedUrl])
+    if (template.sharedUrl) return template.sharedUrl;
+    if (typeof window === "undefined") return `/preview/${template.id}`;
+    return `${window.location.origin}/preview/${template.id}`;
+  }, [template.id, template.sharedUrl]);
 
   const exportJson = () => {
     try {
-      const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${template.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`
-      a.click()
-      URL.revokeObjectURL(url)
-      toast.success('Downloaded JSON')
+      const blob = new Blob([JSON.stringify(template, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${template.title
+        .replace(/[^a-z0-9]/gi, "_")
+        .toLowerCase()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Downloaded JSON");
     } catch {
-      toast.error('Failed to export JSON')
+      toast.error("Failed to export JSON");
     }
-  }
+  };
 
   const copyShareLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareLink)
-      toast.success('Share link copied')
+      await navigator.clipboard.writeText(shareLink);
+      toast.success("Share link copied");
     } catch {
-      toast.error('Failed to copy link')
+      toast.error("Failed to copy link");
     }
-  }
+  };
 
   return (
     <motion.div
@@ -145,8 +165,12 @@ export function TemplatePreview({ template }: { template: Template }) {
         {/* Sidebar */}
         <Card className="w-full lg:w-[320px]">
           <div className="p-5">
-            <h2 className="text-lg font-semibold text-slate-100">{template.title}</h2>
-            <p className="mt-2 text-sm text-slate-300">{template.description}</p>
+            <h2 className="text-lg font-semibold text-slate-100">
+              {template.title}
+            </h2>
+            <p className="mt-2 text-sm text-slate-300">
+              {template.description}
+            </p>
 
             <Divider className="my-4" />
 
@@ -154,7 +178,7 @@ export function TemplatePreview({ template }: { template: Template }) {
               <Button
                 variant="flat"
                 startContent={<LayoutDashboard className="h-4 w-4" />}
-                onPress={() => router.push('/dashboard')}
+                onPress={() => router.push("/dashboard")}
                 aria-label="Back to Dashboard"
                 className="w-full"
               >
@@ -203,16 +227,21 @@ export function TemplatePreview({ template }: { template: Template }) {
             <NotionRenderer
               recordMap={recordMap}
               fullPage={false}
-              darkMode={resolvedTheme !== 'light'}
+              darkMode={resolvedTheme !== "light"}
               className="notion"
             />
 
             {/* Block details */}
             <Divider className="my-6" />
-            <h3 className="text-sm font-semibold text-slate-200">Block properties</h3>
+            <h3 className="text-sm font-semibold text-slate-200">
+              Block properties
+            </h3>
             <div className="mt-3 space-y-3">
               {template.blocks.map((b) => (
-                <div key={b.id} className="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                <div
+                  key={b.id}
+                  className="rounded-lg border border-slate-700 bg-slate-900/40 p-3"
+                >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-slate-100">
                       <span className="capitalize">{b.type}</span>: {b.content}
@@ -230,5 +259,5 @@ export function TemplatePreview({ template }: { template: Template }) {
         </Card>
       </div>
     </motion.div>
-  )
+  );
 }

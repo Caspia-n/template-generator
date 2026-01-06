@@ -3,12 +3,25 @@ const nextConfig = {
   experimental: {
     esmExternals: true,
   },
+  serverExternalPackages: ["node-llama-cpp", "@reflink/reflink"],
   images: {
-    domains: [
-      'mcp.notion.com',
-      'www.notion.so',
-      'notion.so',
-      'prod-files-secure.s3.us-west-2.amazonaws.com',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'mcp.notion.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.notion.so',
+      },
+      {
+        protocol: 'https',
+        hostname: 'notion.so',
+      },
+      {
+        protocol: 'https',
+        hostname: 'prod-files-secure.s3.us-west-2.amazonaws.com',
+      },
     ],
   },
   env: {
