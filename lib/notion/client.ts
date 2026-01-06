@@ -52,15 +52,13 @@ export async function testNotionAuth(token?: string): Promise<NotionAuthResponse
  * Convert internal template blocks to Notion blocks format
  */
 function convertBlocksToNotion(blocks: TemplateBlock[]): any[] {
-  return blocks.map(block => {
+  return blocks.map((block) => {
     switch (block.type) {
       case 'heading':
-        const headingType = block.level === 1 ? 'heading_1' : 
-                           block.level === 2 ? 'heading_2' : 'heading_3';
         return {
           object: 'block',
-          type: headingType,
-          [headingType]: {
+          type: 'heading_1',
+          heading_1: {
             rich_text: [
               {
                 type: 'text',
@@ -88,89 +86,37 @@ function convertBlocksToNotion(blocks: TemplateBlock[]): any[] {
           },
         };
 
-      case 'divider':
-        return {
-          object: 'block',
-          type: 'divider',
-          divider: {},
-        };
-
-      case 'image':
-        return {
-          object: 'block',
-          type: 'image',
-          image: {
-            type: 'external',
-            external: {
-              url: block.content,
-            },
-          },
-        };
-
-      case 'quote':
-        return {
-          object: 'block',
-          type: 'quote',
-          quote: {
-            rich_text: [
-              {
-                type: 'text',
-                text: {
-                  content: block.content,
-                },
-              },
-            ],
-          },
-        };
-
-      case 'code':
-        return {
-          object: 'block',
-          type: 'code',
-          code: {
-            rich_text: [
-              {
-                type: 'text',
-                text: {
-                  content: block.content,
-                },
-              },
-            ],
-            language: 'plain text',
-          },
-        };
-
       case 'database':
-        // For databases, we'll create a placeholder and let the user set up properties
         return {
           object: 'block',
-          type: 'paragraph',
-          paragraph: {
+          type: 'callout',
+          callout: {
             rich_text: [
               {
                 type: 'text',
                 text: {
-                  content: `📊 Database: ${block.content} (configure properties in Notion)`,
+                  content: `📊 Database: ${block.content}`,
                 },
               },
             ],
+            icon: { type: 'emoji', emoji: '📊' },
           },
         };
 
       case 'table':
-        // For tables, we'll create a placeholder
         return {
           object: 'block',
-          type: 'paragraph',
-          paragraph: {
+          type: 'callout',
+          callout: {
             rich_text: [
               {
                 type: 'text',
                 text: {
-                  content: `📋 Table: ${block.content} (create table in Notion)`,
+                  content: `📋 Table: ${block.content}`,
                 },
               },
             ],
+            icon: { type: 'emoji', emoji: '📋' },
           },
         };
 

@@ -1,41 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { generateTemplate } from '@/lib/ai/tools';
-import type { GenerationRequest } from '@/lib/types';
+import { NextRequest, NextResponse } from 'next/server'
+import { GenerationRequestSchema } from '@/lib/validation'
 
 export async function POST(request: NextRequest) {
-  try {
-    const body: GenerationRequest = await request.json();
-    
-    // Validate required fields
-    if (!body.description || !body.theme || !body.complexity) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: { 
-            code: 'VALIDATION_ERROR', 
-            message: 'Missing required fields: description, theme, complexity' 
-          } 
-        },
-        { status: 400 }
-      );
-    }
+  const body = await request.json().catch(() => null)
 
-    // Generate template
-    const result = await generateTemplate(body);
-
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error('Template generation API error:', error);
-    
+  const parsed = GenerationRequestSchema.safeParse(body)
+  if (!parsed.success) {
     return NextResponse.json(
-      { 
-        success: false, 
-        error: { 
-          code: 'GENERATION_ERROR', 
-          message: error instanceof Error ? error.message : 'Template generation failed' 
-        } 
+      {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Invalid request payload',
+          details: parsed.error.flatten(),
+        },
       },
-      { status: 500 }
-    );
+      { status: 400 }
+    )
   }
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: {
+        code: 'NOT_IMPLEMENTED',
+        message: 'Template generation is not implemented yet (Task 3+)',
+      },
+    },
+    { status: 501 }
+  )
 }

@@ -1,28 +1,21 @@
-'use client';
+'use client'
 
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import { Toaster } from 'react-hot-toast';
+import { ThemeProvider } from 'next-themes'
+import { Toaster } from 'react-hot-toast'
+import { ReactNode } from 'react'
+import { HeroUIProvider } from '@heroui/react'
+import { useRouter } from 'next/navigation'
+import { ErrorBoundary } from './ErrorBoundary'
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children: ReactNode }) {
+  const router = useRouter()
+
   return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      {children}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: 'var(--background)',
-            color: 'var(--foreground)',
-            border: '1px solid var(--border)',
-          },
-        }}
-      />
-    </NextThemesProvider>
-  );
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <HeroUIProvider navigate={router.push}>
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </HeroUIProvider>
+      <Toaster position="top-right" />
+    </ThemeProvider>
+  )
 }
