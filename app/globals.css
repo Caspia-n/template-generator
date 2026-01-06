@@ -1,342 +1,86 @@
+@import 'react-notion-x/src/styles.css';
+@import 'prismjs/themes/prism-tomorrow.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --color-primary: #3b82f6;
+    --color-secondary: #8b5cf6;
+    --color-accent: #ec4899;
+    --color-bg: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-border: #334155;
+    --color-text: #f1f5f9;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+  html.light {
+    --color-primary: #2563eb;
+    --color-secondary: #7c3aed;
+    --color-bg: #ffffff;
+    --color-bg-secondary: #f8fafc;
+    --color-border: #e2e8f0;
+    --color-text: #0f172a;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  
+  html,
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-slate-900 text-slate-50 transition-colors duration-300;
   }
-  
-  /* Custom scrollbar styles */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    @apply bg-muted;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-md;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
-  }
-  
-  /* Focus styles for accessibility */
-  .focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
-  }
-  
-  /* Custom animations */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-  
-  @keyframes bounce {
-    0%, 100% {
-      transform: translateY(-25%);
-      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-    }
-    50% {
-      transform: none;
-      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-    }
-  }
-  
-  /* Utility classes */
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
-  }
-  
-  .animate-slide-in {
-    animation: slideIn 0.3s ease-out;
-  }
-  
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
-  
-  .animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  .animate-bounce {
-    animation: bounce 1s infinite;
+
+  html.light body {
+    @apply bg-white text-slate-900;
   }
 }
 
 @layer components {
-  /* Notion-like typography */
-  .notion-h1 {
-    @apply text-3xl font-bold leading-tight tracking-tight text-foreground;
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors;
   }
-  
-  .notion-h2 {
-    @apply text-2xl font-semibold leading-tight tracking-tight text-foreground;
+
+  .card-base {
+    @apply bg-slate-800 border border-slate-700 rounded-lg p-4;
   }
-  
-  .notion-h3 {
-    @apply text-xl font-semibold leading-tight text-foreground;
-  }
-  
-  .notion-h4 {
-    @apply text-lg font-medium leading-tight text-foreground;
-  }
-  
-  .notion-p {
-    @apply text-base leading-relaxed text-muted-foreground;
-  }
-  
-  .notion-small {
-    @apply text-sm text-muted-foreground;
-  }
-  
-  .notion-caption {
-    @apply text-xs text-muted-foreground;
-  }
-  
-  /* Card components */
-  .notion-card {
-    @apply bg-card border border-border rounded-lg shadow-sm;
-  }
-  
-  .notion-card-hover {
-    @apply transition-colors hover:bg-muted/50;
-  }
-  
-  /* Button variants */
-  .btn-notion {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background;
-  }
-  
-  .btn-notion-primary {
-    @apply btn-notion bg-primary text-primary-foreground hover:bg-primary/90;
-  }
-  
-  .btn-notion-secondary {
-    @apply btn-notion bg-secondary text-secondary-foreground hover:bg-secondary/80;
-  }
-  
-  .btn-notion-outline {
-    @apply btn-notion border border-input hover:bg-accent hover:text-accent-foreground;
-  }
-  
-  .btn-notion-ghost {
-    @apply btn-notion hover:bg-accent hover:text-accent-foreground;
-  }
-  
-  /* Form components */
-  .form-notion {
-    @apply space-y-4;
-  }
-  
-  .form-notion-label {
-    @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
-  }
-  
-  .form-notion-input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
-  }
-  
-  .form-notion-textarea {
-    @apply flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
-  }
-  
-  /* Status indicators */
-  .status-success {
-    @apply text-green-600 bg-green-50 border-green-200;
-  }
-  
-  .status-warning {
-    @apply text-yellow-600 bg-yellow-50 border-yellow-200;
-  }
-  
-  .status-error {
-    @apply text-red-600 bg-red-50 border-red-200;
-  }
-  
-  .status-info {
-    @apply text-blue-600 bg-blue-50 border-blue-200;
-  }
-  
-  /* Loading states */
-  .loading-skeleton {
-    @apply animate-pulse bg-muted rounded;
-  }
-  
-  .loading-spinner {
-    @apply animate-spin rounded-full border-2 border-muted border-t-primary;
-  }
-  
-  /* Template preview styles */
-  .template-preview {
-    @apply prose prose-neutral dark:prose-invert max-w-none;
-  }
-  
-  .template-preview h1,
-  .template-preview h2,
-  .template-preview h3,
-  .template-preview h4,
-  .template-preview h5,
-  .template-preview h6 {
-    @apply text-foreground font-semibold;
-  }
-  
-  .template-preview p {
-    @apply text-muted-foreground leading-relaxed;
-  }
-  
-  .template-preview blockquote {
-    @apply border-l-4 border-primary pl-4 italic text-muted-foreground bg-muted/30 py-2;
-  }
-  
-  .template-preview code {
-    @apply bg-muted px-1.5 py-0.5 rounded text-sm;
-  }
-  
-  .template-preview pre {
-    @apply bg-muted p-4 rounded-lg overflow-x-auto;
-  }
-  
-  .template-preview pre code {
-    @apply bg-transparent p-0;
+
+  .input-base {
+    @apply w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-50 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
 }
 
-/* Print styles */
-@media print {
-  body {
-    @apply text-black bg-white;
-  }
-  
-  .no-print {
-    display: none !important;
-  }
-  
-  .template-preview {
-    @apply text-black;
-  }
+/* Notion-like spacing */
+body {
+  line-height: 1.6;
 }
 
-/* High contrast mode */
-@media (prefers-contrast: high) {
-  :root {
-    --border: 0 0% 20%;
-    --ring: 0 0% 20%;
-  }
-  
-  .dark {
-    --border: 0 0% 80%;
-    --ring: 0 0% 80%;
-  }
+h1 {
+  @apply text-4xl font-bold mb-4 mt-8;
 }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+h2 {
+  @apply text-3xl font-bold mb-3 mt-6;
+}
+
+h3 {
+  @apply text-2xl font-bold mb-2 mt-4;
+}
+
+p {
+  @apply mb-4;
+}
+
+/* Dark mode transitions */
+* {
+  @apply transition-colors duration-300;
+}
+
+/* react-notion-x tweaks to better match app theming */
+.notion {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.notion-page {
+  padding: 0;
 }

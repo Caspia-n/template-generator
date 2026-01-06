@@ -1,237 +1,247 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import type { TemplateFormData } from '@/lib/types';
-import { validateTemplateForm } from '@/lib/validation';
-import { toasts } from '@/components/Toasts';
+import { useEffect, useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { GenerationRequestSchema, type GenerationRequest } from '@/lib/validation'
+import type { MCPServer, Template } from '@/lib/types'
+import { Button, Select, SelectItem, Switch, Textarea } from '@heroui/react'
+import { useRouter } from 'next/navigation'
+import { useToast } from './Toasts'
+import { nanoid } from 'nanoid'
+import { saveTemplate } from '@/lib/storage'
+import { motion } from 'framer-motion'
 
-interface TemplateFormProps {
-  onSubmit: (data: TemplateFormData) => Promise<void>;
-  isLoading?: boolean;
+type FormValues = GenerationRequest
+
+function buildMockTemplate(values: FormValues): Template {
+  const title = values.description
+    .trim()
+    .split(/\s+/)
+    .slice(0, 6)
+    .join(' ')
+
+  return {
+    id: nanoid(),
+    title: title || 'New Template',
+    description: values.description,
+    theme: values.theme,
+    createdAt: new Date().toISOString(),
+    blocks: [
+      {
+        id: nanoid(),
+        type: 'heading',
+        content: title || 'Template',
+      },
+      {
+        id: nanoid(),
+        type: 'paragraph',
+        content: values.description,
+      },
+      {
+        id: nanoid(),
+        type: 'database',
+        content: 'Tasks',
+        properties: {
+          Name: 'title',
+          Status: 'select',
+        },
+      },
+      {
+        id: nanoid(),
+        type: 'table',
+        content: 'Weekly Goals',
+        properties: {
+          columns: ['Goal', 'Progress', 'Notes'],
+        },
+      },
+    ],
+  }
 }
 
-/**
- * Template generation form component
- */
-export function TemplateForm({ onSubmit, isLoading = false }: TemplateFormProps) {
-  const [useMCP, setUseMCP] = useState(false);
-  const [selectedServers, setSelectedServers] = useState<string[]>([]);
-  
-  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<TemplateFormData>({
+export function TemplateForm() {
+  const router = useRouter()
+  const toast = useToast()
+
+  const [servers, setServers] = useState<MCPServer[]>([])
+  const [formError, setFormError] = useState<string | null>(null)
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    watch,
+  } = useForm<FormValues>({
+    resolver: zodResolver(GenerationRequestSchema),
     defaultValues: {
       description: '',
-      theme_name: 'minimal',
-      include_images: false,
-      use_mcp: false,
-      selected_servers: [],
-      target_audience: '',
-      complexity: 'intermediate',
+      theme: 'system',
+      useMCP: true,
+      selectedServers: [],
     },
-  });
+    mode: 'onChange',
+  })
 
-  const watchedUseMCP = watch('use_mcp');
+  const useMCP = watch('useMCP')
 
-  const handleFormSubmit = async (data: TemplateFormData) => {
-    try {
-      // Validate form data
-      const validation = validateTemplateForm(data);
-      if (!validation.success) {
-        validation.errors.forEach(error => {
-          toasts.validationError('Form', error);
-        });
-        return;
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadServers() {
+      try {
+        const res = await fetch('/mcp-servers.json')
+        if (!res.ok) return
+        const json = await res.json()
+        const parsed = (json?.servers ?? []) as MCPServer[]
+        if (isMounted) setServers(parsed)
+      } catch {
+        // ignore (optional feature)
       }
-
-      // Update selected servers
-      data.selected_servers = selectedServers;
-      
-      await onSubmit(data);
-    } catch (error) {
-      toasts.unexpectedError('template form', error instanceof Error ? error.message : 'Unknown error');
     }
-  };
 
-  const themes = [
-    { key: 'minimal', label: 'Minimal' },
-    { key: 'modern', label: 'Modern' },
-    { key: 'professional', label: 'Professional' },
-    { key: 'creative', label: 'Creative' },
-  ];
+    loadServers()
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
-  const complexityLevels = [
-    { key: 'simple', label: 'Simple - Basic functionality, fewer features' },
-    { key: 'intermediate', label: 'Intermediate - Balanced features and complexity' },
-    { key: 'advanced', label: 'Advanced - Full features with automation' },
-  ];
+  const availableServerItems = useMemo(() => {
+    return servers.filter((s) => s.active)
+  }, [servers])
 
-  const mcpServers = [
-    { key: 'notion-mcp', label: 'Notion MCP' },
-    { key: 'github-mcp', label: 'GitHub MCP' },
-  ];
+  const onSubmit = async (values: FormValues) => {
+    setFormError(null)
+
+    try {
+      const template = buildMockTemplate(values)
+      saveTemplate(template)
+      toast.success('Template created')
+      router.push(`/preview/${template.id}`)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to create template'
+      setFormError(message)
+      toast.error(message)
+    }
+  }
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-sm border p-6">
-      <h2 className="text-2xl font-bold mb-6">Generate Notion Template</h2>
-      
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Template Description *
-          </label>
-          <textarea
-            {...register('description', { 
-              required: 'Description is required',
-              minLength: { value: 10, message: 'Description must be at least 10 characters' },
-              maxLength: { value: 2000, message: 'Description must be less than 2000 characters' }
-            })}
-            placeholder="Describe the Notion template you want to create. Be specific about the purpose, features, and structure you need..."
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {errors.description && (
-            <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-          )}
-          <p className="mt-1 text-xs text-gray-500">
-            {watch('description')?.length || 0}/2000 characters
-          </p>
-        </div>
-
-        {/* Theme Selection */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Theme *
-          </label>
-          <select
-            {...register('theme_name', { required: 'Theme selection is required' })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select a theme</option>
-            {themes.map((theme) => (
-              <option key={theme.key} value={theme.key}>
-                {theme.label}
-              </option>
-            ))}
-          </select>
-          {errors.theme_name && (
-            <p className="mt-1 text-sm text-red-600">{errors.theme_name.message}</p>
-          )}
-        </div>
-
-        {/* Complexity Level */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Complexity Level *
-          </label>
-          <select
-            {...register('complexity', { required: 'Complexity level is required' })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select complexity level</option>
-            {complexityLevels.map((level) => (
-              <option key={level.key} value={level.key}>
-                {level.label}
-              </option>
-            ))}
-          </select>
-          {errors.complexity && (
-            <p className="mt-1 text-sm text-red-600">{errors.complexity.message}</p>
-          )}
-        </div>
-
-        {/* Target Audience */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Target Audience (Optional)
-          </label>
-          <input
-            {...register('target_audience')}
-            placeholder="e.g., Project Managers, Content Creators, Students"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            This helps tailor the template for specific user needs
-          </p>
-        </div>
-
-        {/* Options */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-sm font-medium">Include Images</label>
-              <p className="text-xs text-gray-500">Add placeholder images and visual elements</p>
-            </div>
-            <input
-              type="checkbox"
-              {...register('include_images')}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="w-full"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Controller
+          name="description"
+          control={control}
+          render={({ field }) => (
+            <Textarea
+              label="Describe your template"
+              placeholder='e.g., "fitness tracker with weekly goals"'
+              minRows={4}
+              value={field.value}
+              onValueChange={field.onChange}
+              isRequired
+              isDisabled={isSubmitting}
+              isInvalid={!!errors.description}
+              errorMessage={errors.description?.message}
+              aria-label="Describe your template"
             />
-          </div>
+          )}
+        />
 
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-sm font-medium">Use MCP Servers</label>
-              <p className="text-xs text-gray-500">Enable Model Context Protocol integration</p>
-            </div>
-            <input
-              type="checkbox"
-              {...register('use_mcp')}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setValue('use_mcp', checked);
-                setUseMCP(checked);
-                if (!checked) {
-                  setSelectedServers([]);
-                }
+        <Controller
+          name="theme"
+          control={control}
+          render={({ field }) => (
+            <Select
+              label="Theme"
+              placeholder="Select a theme"
+              selectedKeys={new Set([field.value])}
+              onSelectionChange={(keys) => {
+                const next = Array.from(keys as Set<string>)[0] as FormValues['theme']
+                if (next) field.onChange(next)
               }}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-          </div>
-        </div>
+              isDisabled={isSubmitting}
+              isInvalid={!!errors.theme}
+              errorMessage={errors.theme?.message}
+              aria-label="Theme picker"
+            >
+              <SelectItem key="light">Light</SelectItem>
+              <SelectItem key="dark">Dark</SelectItem>
+              <SelectItem key="system">System</SelectItem>
+              <SelectItem key="custom">Custom</SelectItem>
+            </Select>
+          )}
+        />
 
-        {/* MCP Server Selection */}
-        {watchedUseMCP && (
-          <div className="border rounded-lg p-4">
-            <label className="block text-sm font-medium mb-2">
-              Select MCP Servers
-            </label>
-            <div className="space-y-2">
-              {mcpServers.map((server) => (
-                <label key={server.key} className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedServers.includes(server.key)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedServers([...selectedServers, server.key]);
-                      } else {
-                        setSelectedServers(selectedServers.filter(s => s !== server.key));
-                      }
-                    }}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm">{server.label}</span>
-                </label>
-              ))}
+        <Controller
+          name="useMCP"
+          control={control}
+          render={({ field }) => (
+            <div className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-800 p-4">
+              <div>
+                <p className="text-sm font-medium text-slate-100">Use MCP for tool calling</p>
+                <p className="text-xs text-slate-300">Enable Model Context Protocol integrations</p>
+              </div>
+              <Switch
+                isSelected={field.value}
+                onValueChange={field.onChange}
+                isDisabled={isSubmitting}
+                aria-label="Use MCP for tool calling"
+              />
             </div>
-            <p className="mt-2 text-xs text-gray-500">
-              MCP servers enable advanced integrations with external services
-            </p>
+          )}
+        />
+
+        <details className="rounded-xl border border-slate-700 bg-slate-800 p-4" open={useMCP}>
+          <summary className="cursor-pointer select-none text-sm font-medium text-slate-100">
+            Available MCP servers
+          </summary>
+          <div className="mt-4">
+            <Controller
+              name="selectedServers"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="MCP Servers"
+                  selectionMode="multiple"
+                  placeholder={availableServerItems.length ? 'Select servers' : 'No servers found'}
+                  selectedKeys={new Set(field.value)}
+                  onSelectionChange={(keys) => field.onChange(Array.from(keys) as string[])}
+                  isDisabled={isSubmitting || !useMCP || availableServerItems.length === 0}
+                  aria-label="Available MCP servers"
+                >
+                  {availableServerItems.map((server) => (
+                    <SelectItem key={server.id}>{server.name}</SelectItem>
+                  ))}
+                </Select>
+              )}
+            />
+            {errors.selectedServers?.message && (
+              <p className="mt-2 text-sm text-red-400">{errors.selectedServers.message}</p>
+            )}
+          </div>
+        </details>
+
+        {formError && (
+          <div className="rounded-lg border border-red-800/40 bg-red-950/30 p-3 text-sm text-red-200" role="alert">
+            {formError}
           </div>
         )}
 
-        {/* Submit Button */}
-        <div className="pt-4">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Generating Template...' : 'Generate Template'}
-          </button>
-        </div>
+        <Button
+          type="submit"
+          color="primary"
+          isLoading={isSubmitting}
+          isDisabled={isSubmitting}
+          className="w-full"
+          aria-label="Generate Template"
+        >
+          Generate Template
+        </Button>
       </form>
-    </div>
-  );
+    </motion.div>
+  )
 }
