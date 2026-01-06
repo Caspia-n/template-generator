@@ -1,6 +1,7 @@
 'use client'
 
 import { TemplateForm } from '@/components/TemplateForm'
+import { ModelPicker } from '@/components/ModelPicker'
 import { Divider, Button } from '@heroui/react'
 import { useTheme } from 'next-themes'
 import { Moon, Sun } from 'lucide-react'
@@ -36,8 +37,16 @@ export default function HomePage() {
         </header>
 
         <main className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-[600px] rounded-2xl border border-slate-700 bg-slate-900/50 p-6 shadow-xl">
-            <TemplateForm />
+          <div className="w-full max-w-[600px] space-y-6">
+            {/* Model Picker */}
+            <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6 shadow-xl">
+              <ModelPicker />
+            </div>
+
+            {/* Template Form */}
+            <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6 shadow-xl">
+              <TemplateForm />
+            </div>
           </div>
         </main>
 

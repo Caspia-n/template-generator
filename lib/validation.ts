@@ -3,8 +3,8 @@ import { z } from 'zod'
 export const GenerationRequestSchema = z.object({
   description: z.string().min(10).max(500),
   theme: z.enum(['light', 'dark', 'system', 'custom']),
-  useMCP: z.boolean().default(true),
-  selectedServers: z.array(z.string()).default([]),
+  useMCP: z.boolean(),
+  selectedServers: z.array(z.string()),
 })
 
 export type GenerationRequest = z.infer<typeof GenerationRequestSchema>

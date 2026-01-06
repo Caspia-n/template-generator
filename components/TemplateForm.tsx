@@ -65,13 +65,14 @@ export function TemplateForm() {
 
   const [servers, setServers] = useState<MCPServer[]>([])
   const [formError, setFormError] = useState<string | null>(null)
+  const [modelPath, setModelPath] = useState<string | null>(null)
 
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
-  } = useForm<FormValues>({
+  } = useForm<GenerationRequest>({
     resolver: zodResolver(GenerationRequestSchema),
     defaultValues: {
       description: '',
@@ -105,6 +106,12 @@ export function TemplateForm() {
     }
   }, [])
 
+  useEffect(() => {
+    // Load model path from localStorage
+    const saved = localStorage.getItem("selectedModelPath");
+    setModelPath(saved);
+  }, [])
+
   const availableServerItems = useMemo(() => {
     return servers.filter((s) => s.active)
   }, [servers])
@@ -112,11 +119,33 @@ export function TemplateForm() {
   const onSubmit = async (values: FormValues) => {
     setFormError(null)
 
+    if (!modelPath) {
+      toast.error("Please select an AI model first");
+      return;
+    }
+
     try {
-      const template = buildMockTemplate(values)
-      saveTemplate(template)
-      toast.success('Template created')
-      router.push(`/preview/${template.id}`)
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-model-path": modelPath,
+        },
+        body: JSON.stringify({ ...values, modelPath }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Generation failed");
+      }
+
+      const result = await response.json();
+      
+      // Save template to local storage
+      saveTemplate(result.template);
+      
+      toast.success("Template generated successfully!");
+      router.push(`/preview/${result.template.id}`);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to create template'
       setFormError(message)
@@ -233,13 +262,13 @@ export function TemplateForm() {
 
         <Button
           type="submit"
-          color="primary"
+          color={modelPath ? "primary" : "default"}
           isLoading={isSubmitting}
-          isDisabled={isSubmitting}
+          isDisabled={isSubmitting || !modelPath}
           className="w-full"
           aria-label="Generate Template"
         >
-          Generate Template
+          {!modelPath ? "Select Model First" : isSubmitting ? "Generating..." : "Generate Template"}
         </Button>
       </form>
     </motion.div>
