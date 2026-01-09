@@ -2,7 +2,7 @@
 
 import type { Template } from '@/lib/types'
 import { deleteTemplate as deleteFromStorage, loadAllTemplates } from '@/lib/storage'
-import { Button, Card, Input, Modal, useOverlayState } from '@heroui/react'
+import { Button, Card, Input, Modal, useOverlayState, InputGroup } from '@heroui/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { useToast } from './Toasts'
@@ -113,7 +113,7 @@ export function Dashboard() {
             New Template
           </Button>
           <Button
-            variant="bordered"
+            variant="secondary"
             startContent={<Settings2 className="h-4 w-4" />}
             onPress={() => setIsConfigOpen(true)}
             aria-label="Edit MCP Config"
@@ -170,7 +170,7 @@ export function Dashboard() {
 
                   <div className="grid grid-cols-2 gap-2">
                     <Button
-                      variant="flat"
+                      variant="tertiary"
                       startContent={<Eye className="h-4 w-4" />}
                       onPress={() => router.push(`/preview/${t.id}`)}
                       aria-label={`Preview ${t.title}`}
@@ -178,7 +178,7 @@ export function Dashboard() {
                       Preview
                     </Button>
                     <Button
-                      variant="bordered"
+                      variant="secondary"
                       startContent={<Download className="h-4 w-4" />}
                       onPress={() => exportTemplate(t)}
                       aria-label={`Export ${t.title}`}
@@ -186,7 +186,7 @@ export function Dashboard() {
                       Export
                     </Button>
                     <Button
-                      variant="bordered"
+                      variant="secondary"
                       startContent={<Copy className="h-4 w-4" />}
                       onPress={() => shareTemplate(t)}
                       aria-label={`Share ${t.title}`}
@@ -195,7 +195,7 @@ export function Dashboard() {
                     </Button>
                     <Button
                       color="danger"
-                      variant="bordered"
+                      variant="secondary"
                       startContent={<Trash2 className="h-4 w-4" />}
                       onPress={() => handleDelete(t)}
                       aria-label={`Delete ${t.title}`}
@@ -224,7 +224,7 @@ export function Dashboard() {
               </p>
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="bordered" onPress={() => deleteModalState.close()} aria-label="Cancel deletion">
+              <Button variant="secondary" onPress={() => deleteModalState.close()} aria-label="Cancel deletion">
                 Cancel
               </Button>
               <Button color="danger" onPress={confirmDelete} aria-label="Confirm deletion">

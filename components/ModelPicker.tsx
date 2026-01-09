@@ -217,7 +217,7 @@ Example paths:
               {modelPath && (
                 <Button
                   isIconOnly
-                  variant="light"
+                  variant="ghost"
                   onPress={handleClearSelection}
                   className="text-slate-400 hover:text-red-400"
                 >
@@ -380,7 +380,7 @@ Example paths:
             <Modal.Footer>
               <Button
                 color="danger"
-                variant="light"
+                variant="ghost"
                 onPress={() => modalState.close()}
                 isDisabled={isValidating}
               >

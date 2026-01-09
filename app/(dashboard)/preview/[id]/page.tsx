@@ -48,11 +48,11 @@ export default function PreviewPage() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-8">
         <div className="mb-6">
           <Button
-            variant="light"
-            startContent={<ArrowLeft className="h-4 w-4" />}
+            variant="ghost"
             onPress={() => router.back()}
             aria-label="Back"
           >
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
         </div>

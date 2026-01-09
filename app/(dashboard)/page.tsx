@@ -24,7 +24,7 @@ export default function HomePage() {
         <header className="relative mb-10">
           <Button
             isIconOnly
-            variant="light"
+            variant="ghost"
             className="absolute right-0 top-0"
             onPress={() => setTheme(isDark ? 'light' : 'dark')}
             aria-label="Toggle theme"

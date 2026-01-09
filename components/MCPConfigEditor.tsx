@@ -179,7 +179,7 @@ export function MCPConfigEditor({
             <Modal.Heading>MCP Configuration</Modal.Heading>
             <div className="flex gap-2">
               <Button
-                variant="bordered"
+                variant="secondary"
                 startContent={<RefreshCcw className="h-4 w-4" />}
                 onPress={loadConfig}
                 isDisabled={isLoading || isSaving}
@@ -322,7 +322,7 @@ export function MCPConfigEditor({
                         </div>
                         <Button
                           isIconOnly
-                          variant="light"
+                          variant="ghost"
                           color="danger"
                           onPress={() => onDeleteServer(s.id)}
                           aria-label={`Delete ${s.name}`}
@@ -339,7 +339,7 @@ export function MCPConfigEditor({
           </Modal.Body>
 
           <Modal.Footer>
-            <Button variant="bordered" onPress={() => modalState.close()} aria-label="Close">
+            <Button variant="secondary" onPress={() => modalState.close()} aria-label="Close">
               Close
             </Button>
           </Modal.Footer>
