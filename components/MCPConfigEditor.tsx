@@ -190,7 +190,7 @@ export function MCPConfigEditor({
               <Button
                 variant="primary"
                 onPress={onSave}
-                disabled={isLoading}
+                disabled={isLoading || isSaving}
                 aria-label="Save configuration"
               >
                 <Save className="h-4 w-4 mr-2" />
