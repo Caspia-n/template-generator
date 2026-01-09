@@ -307,7 +307,13 @@ export function MCPConfigEditor({
                     )}
                   />
 
-                  <Button type="submit" variant="primary" className="w-full" aria-label="Add Server">
+                  <Button 
+                    type="submit" 
+                    variant="primary" 
+                    className="w-full" 
+                    disabled={isLoading || isSaving}
+                    aria-label="Add Server"
+                  >
                     Add Server
                   </Button>
                 </form>
@@ -331,6 +337,7 @@ export function MCPConfigEditor({
                         <Button
                           isIconOnly
                           variant="ghost"
+                          disabled={isLoading || isSaving}
                           onPress={() => onDeleteServer(s.id)}
                           aria-label={`Delete ${s.name}`}
                         >
