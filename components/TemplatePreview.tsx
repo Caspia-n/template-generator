@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import type { ExtendedRecordMap } from "notion-types";
 import type { Template, TemplateBlock } from "@/lib/types";
-import { Button, Card, Divider } from "@heroui/react";
+import { Button, Card, Separator } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useToast } from "./Toasts";
 import { useMemo } from "react";
@@ -172,41 +172,41 @@ export function TemplatePreview({ template }: { template: Template }) {
               {template.description}
             </p>
 
-            <Divider className="my-4" />
+            <Separator className="my-4" />
 
             <div className="space-y-2">
               <Button
-                variant="flat"
-                startContent={<LayoutDashboard className="h-4 w-4" />}
+                variant="tertiary"
                 onPress={() => router.push("/dashboard")}
                 aria-label="Back to Dashboard"
                 className="w-full"
               >
+                <LayoutDashboard className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
 
               <Button
-                variant="bordered"
-                startContent={<Download className="h-4 w-4" />}
+                variant="secondary"
                 onPress={exportJson}
                 aria-label="Export JSON"
                 className="w-full"
               >
+                <Download className="h-4 w-4 mr-2" />
                 Export JSON
               </Button>
 
               <Button
-                variant="bordered"
-                startContent={<Copy className="h-4 w-4" />}
+                variant="secondary"
                 onPress={copyShareLink}
                 aria-label="Copy share link"
                 className="w-full"
               >
+                <Copy className="h-4 w-4 mr-2" />
                 Copy share link
               </Button>
             </div>
 
-            <Divider className="my-4" />
+            <Separator className="my-4" />
 
             <div className="text-xs text-slate-400">
               <div className="flex items-center justify-between">
@@ -232,7 +232,7 @@ export function TemplatePreview({ template }: { template: Template }) {
             />
 
             {/* Block details */}
-            <Divider className="my-6" />
+            <Separator className="my-6" />
             <h3 className="text-sm font-semibold text-slate-200">
               Block properties
             </h3>

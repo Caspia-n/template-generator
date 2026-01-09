@@ -1,7 +1,7 @@
 'use client'
 
 import type { MCPServer } from '@/lib/types'
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Textarea } from '@heroui/react'
+import { Button, Input, Modal, Select, TextArea, ListBox, ListBoxItem, useOverlayState, TextField, Label } from '@heroui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { useToast } from './Toasts'
 import { Controller, useForm } from 'react-hook-form'
@@ -33,6 +33,10 @@ export function MCPConfigEditor({
   onOpenChange: (open: boolean) => void
 }) {
   const toast = useToast()
+  const modalState = useOverlayState({ 
+    isOpen, 
+    onOpenChange 
+  })
 
   const [servers, setServers] = useState<MCPServer[]>([])
   const [jsonText, setJsonText] = useState('')
@@ -167,44 +171,49 @@ export function MCPConfigEditor({
   }
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="3xl" scrollBehavior="inside">
-      <ModalContent>
-        <ModalHeader className="flex items-center justify-between gap-4">
-          <span>MCP Configuration</span>
-          <div className="flex gap-2">
-            <Button
-              variant="bordered"
-              startContent={<RefreshCcw className="h-4 w-4" />}
-              onPress={loadConfig}
-              isDisabled={isLoading || isSaving}
-              aria-label="Reload from file"
-            >
-              Reload
-            </Button>
-            <Button
-              color="primary"
-              startContent={<Save className="h-4 w-4" />}
-              onPress={onSave}
-              isLoading={isSaving}
-              isDisabled={isLoading}
-              aria-label="Save configuration"
-            >
-              Save
-            </Button>
-          </div>
-        </ModalHeader>
+    <Modal state={modalState}>
+      <Modal.Backdrop />
+      <Modal.Container size="lg" scroll="inside">
+        <Modal.Dialog>
+          <Modal.Header className="flex items-center justify-between gap-4">
+            <Modal.Heading>MCP Configuration</Modal.Heading>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                onPress={loadConfig}
+                isDisabled={isLoading || isSaving}
+                aria-label="Reload from file"
+              >
+                <RefreshCcw className="h-4 w-4 mr-2" />
+                Reload
+              </Button>
+              <Button
+                variant="primary"
+                onPress={onSave}
+                isDisabled={isLoading}
+                aria-label="Save configuration"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save
+              </Button>
+            </div>
+            <Modal.CloseTrigger />
+          </Modal.Header>
 
-        <ModalBody>
+          <Modal.Body>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="space-y-4">
-              <Textarea
-                label="mcp-servers.json"
-                value={jsonText}
-                onValueChange={setJsonText}
-                minRows={16}
-                isDisabled={isLoading || isSaving}
-                aria-label="MCP servers JSON"
-              />
+              <TextField>
+                <Label>mcp-servers.json</Label>
+                <TextArea
+                  value={jsonText}
+                  onChange={(e) => setJsonText(e.target.value)}
+                  rows={16}
+                  isDisabled={isLoading || isSaving}
+                  aria-label="MCP servers JSON"
+                  className="min-h-[400px]"
+                />
+              </TextField>
               {parsedJsonServers === null && (
                 <p className="text-sm text-red-400" role="alert">
                   Invalid JSON. Fix the JSON before saving.
@@ -221,14 +230,15 @@ export function MCPConfigEditor({
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Name"
-                        placeholder="Notion MCP"
-                        isRequired
-                        isDisabled={isLoading || isSaving}
-                        aria-label="Server name"
-                      />
+                      <TextField isRequired>
+                        <Label>Name</Label>
+                        <Input
+                          {...field}
+                          placeholder="Notion MCP"
+                          isDisabled={isLoading || isSaving}
+                          aria-label="Server name"
+                        />
+                      </TextField>
                     )}
                   />
 
@@ -237,14 +247,15 @@ export function MCPConfigEditor({
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="URL"
-                        placeholder="https://mcp.example.com"
-                        isRequired
-                        isDisabled={isLoading || isSaving}
-                        aria-label="Server URL"
-                      />
+                      <TextField isRequired>
+                        <Label>URL</Label>
+                        <Input
+                          {...field}
+                          placeholder="https://mcp.example.com"
+                          isDisabled={isLoading || isSaving}
+                          aria-label="Server URL"
+                        />
+                      </TextField>
                     )}
                   />
 
@@ -254,17 +265,25 @@ export function MCPConfigEditor({
                     render={({ field }) => (
                       <Select
                         label="Auth type"
-                        selectedKeys={[field.value]}
-                        onSelectionChange={(keys) => {
-                          const next = Array.from(keys)[0] as MCPServer['auth_type']
+                        selectedKey={field.value}
+                        onSelectionChange={(key) => {
+                          const next = key as MCPServer['auth_type']
                           if (next) field.onChange(next)
                         }}
                         isDisabled={isLoading || isSaving}
                         aria-label="Auth type"
                       >
-                        <SelectItem key="oauth_2.1">oauth_2.1</SelectItem>
-                        <SelectItem key="bearer">bearer</SelectItem>
-                        <SelectItem key="none">none</SelectItem>
+                        <Select.Trigger>
+                          <Select.Value />
+                          <Select.Indicator />
+                        </Select.Trigger>
+                        <Select.Popover>
+                          <ListBox>
+                            <ListBoxItem id="oauth_2.1">oauth_2.1</ListBoxItem>
+                            <ListBoxItem id="bearer">bearer</ListBoxItem>
+                            <ListBoxItem id="none">none</ListBoxItem>
+                          </ListBox>
+                        </Select.Popover>
                       </Select>
                     )}
                   />
@@ -273,18 +292,20 @@ export function MCPConfigEditor({
                     name="key"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="API key (optional)"
-                        placeholder=""
-                        type="password"
-                        isDisabled={isLoading || isSaving}
-                        aria-label="API key"
-                      />
+                      <TextField>
+                        <Label>API key (optional)</Label>
+                        <Input
+                          {...field}
+                          placeholder=""
+                          type="password"
+                          isDisabled={isLoading || isSaving}
+                          aria-label="API key"
+                        />
+                      </TextField>
                     )}
                   />
 
-                  <Button type="submit" color="primary" className="w-full" aria-label="Add Server">
+                  <Button type="submit" variant="primary" className="w-full" aria-label="Add Server">
                     Add Server
                   </Button>
                 </form>
@@ -307,7 +328,7 @@ export function MCPConfigEditor({
                         </div>
                         <Button
                           isIconOnly
-                          variant="light"
+                          variant="ghost"
                           color="danger"
                           onPress={() => onDeleteServer(s.id)}
                           aria-label={`Delete ${s.name}`}
@@ -321,14 +342,15 @@ export function MCPConfigEditor({
               </div>
             </div>
           </div>
-        </ModalBody>
+          </Modal.Body>
 
-        <ModalFooter>
-          <Button variant="bordered" onPress={() => onOpenChange(false)} aria-label="Close">
-            Close
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+          <Modal.Footer>
+            <Button variant="secondary" onPress={() => modalState.close()} aria-label="Close">
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal.Dialog>
+      </Modal.Container>
     </Modal>
   )
 }

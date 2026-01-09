@@ -6,7 +6,7 @@ import type { Template } from '@/lib/types'
 import { loadTemplate } from '@/lib/storage'
 import { LoadingState } from '@/components/LoadingState'
 import { TemplatePreview } from '@/components/TemplatePreview'
-import { Button, Card, CardBody } from '@heroui/react'
+import { Button, Card } from '@heroui/react'
 import { ArrowLeft } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -48,11 +48,11 @@ export default function PreviewPage() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-8">
         <div className="mb-6">
           <Button
-            variant="light"
-            startContent={<ArrowLeft className="h-4 w-4" />}
+            variant="ghost"
             onPress={() => router.back()}
             aria-label="Back"
           >
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
         </div>
@@ -60,15 +60,15 @@ export default function PreviewPage() {
         <LoadingState isLoading={isLoading} message="Loading template…">
           {error ? (
             <Card>
-              <CardBody className="p-8 text-center">
+              <Card.Content className="p-8 text-center">
                 <h1 className="text-xl font-semibold text-slate-100">{error}</h1>
                 <p className="mt-2 text-sm text-slate-300">Try creating a new template from the home page.</p>
                 <div className="mt-6">
-                  <Button color="primary" onPress={() => router.push('/')} aria-label="Go home">
+                  <Button variant="primary" onPress={() => router.push('/')} aria-label="Go home">
                     Go Home
                   </Button>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
           ) : template ? (
             <TemplatePreview template={template} />
