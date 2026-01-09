@@ -3,20 +3,17 @@ import { useState, useEffect } from "react";
 import {
   Button,
   Card,
-  Divider,
+  Separator,
   Input,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   Alert,
+  useOverlayState,
 } from "@heroui/react";
 import { useToast } from "./Toasts";
 import { motion } from "framer-motion";
 
 export function ModelPicker() {
-  const [isOpen, setIsOpen] = useState(false);
+  const modalState = useOverlayState();
   const [modelPath, setModelPath] = useState<string | null>(null);
   const [modelName, setModelName] = useState<string>("");
   const [isValidating, setIsValidating] = useState(false);
@@ -42,7 +39,7 @@ export function ModelPicker() {
       });
     } else {
       console.log("[ModelPicker] No saved model found, opening modal");
-      setIsOpen(true); // Open on first load if no model selected
+      modalState.open(); // Open on first load if no model selected
     }
   }, []);
 
@@ -158,7 +155,7 @@ Example paths:
       setModelPath(manualPath);
       setModelName(filename);
       setManualPath("");
-      setIsOpen(false);
+      modalState.close();
 
       toastSuccess(`Model selected: ${filename} (${data.size})`);
       console.log("[ModelPicker] Model selection completed successfully");
@@ -179,7 +176,7 @@ Example paths:
     setModelPath(null);
     setModelName("");
     setManualPath("");
-    setIsOpen(true);
+    modalState.open();
     toastSuccess("Model selection cleared");
     console.log("[ModelPicker] Model selection cleared, localStorage cleared, modal opened");
   };
@@ -230,7 +227,7 @@ Example paths:
               <Button
                 onPress={() => {
                   console.log("[ModelPicker] Opening model picker modal");
-                  setIsOpen(true);
+                  modalState.open();
                 }}
                 color={modelPath ? "default" : "primary"}
                 size="sm"
@@ -243,146 +240,155 @@ Example paths:
       </motion.div>
 
       {/* Model Picker Modal */}
-      <Modal isOpen={isOpen} onOpenChange={setIsOpen} size="lg">
-        <ModalContent>
-          <ModalHeader>Select AI Model (GGUF)</ModalHeader>
-          <Divider />
-          <ModalBody className="py-6">
-            <div className="space-y-6">
-              {/* Instructions */}
-              <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
-                <p className="text-sm font-semibold text-blue-300 mb-2">
-                  📝 How to Select Your Model
-                </p>
-                <ol className="text-xs text-slate-300 space-y-2 list-decimal list-inside">
-                  <li>
-                    Download a GGUF model from{" "}
-                    <a
-                      href="https://huggingface.co/unsloth/Qwen3-30B-A3B-Instruct-2507-UD-GGUF"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:underline"
+      <Modal state={modalState}>
+        <Modal.Backdrop />
+        <Modal.Container size="lg">
+          <Modal.Dialog>
+            <Modal.Header>
+              <Modal.Heading>Select AI Model (GGUF)</Modal.Heading>
+              <Modal.CloseTrigger />
+            </Modal.Header>
+            <Separator />
+            <Modal.Body className="py-6">
+              <div className="space-y-6">
+                {/* Instructions */}
+                <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-blue-300 mb-2">
+                    📝 How to Select Your Model
+                  </p>
+                  <ol className="text-xs text-slate-300 space-y-2 list-decimal list-inside">
+                    <li>
+                      Download a GGUF model from{" "}
+                      <a
+                        href="https://huggingface.co/unsloth/Qwen3-30B-A3B-Instruct-2507-UD-GGUF"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:underline"
+                      >
+                        Hugging Face
+                      </a>
+                    </li>
+                    <li>Save it to your computer (e.g., Downloads folder)</li>
+                    <li>
+                      Copy the full file path (step-by-step below)
+                    </li>
+                    <li>Paste it in the "Enter File Path" field and click Validate</li>
+                  </ol>
+                </div>
+
+                <Separator />
+
+                {/* How to Get File Path */}
+                <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-slate-300 mb-3">
+                    📍 How to Find Your File Path
+                  </p>
+                  <div className="space-y-3 text-xs text-slate-400">
+                    <div>
+                      <p className="font-medium text-slate-300 mb-1">Windows:</p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Right-click your .gguf file</li>
+                        <li>Click "Copy as path"</li>
+                        <li>
+                          Paste below (e.g., C:\\Users\\YourName\\Downloads\\model.gguf)
+                        </li>
+                      </ol>
+                    </div>
+                    <Separator className="my-2" />
+                    <div>
+                      <p className="font-medium text-slate-300 mb-1">Mac/Linux:</p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Open Terminal in the folder with your model</li>
+                        <li>Type: pwd (press Enter)</li>
+                        <li>Copy the path, add /model.gguf</li>
+                        <li>
+                          Paste below (e.g., /Users/YourName/Downloads/model.gguf)
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Manual Path Entry - RECOMMENDED METHOD */}
+                <div>
+                  <p className="text-sm font-semibold mb-3 text-slate-200">
+                    Enter File Path (Recommended)
+                  </p>
+                  <div className="flex gap-2 flex-col sm:flex-row">
+                    <Input
+                      placeholder="/home/user/Downloads/model.gguf"
+                      value={manualPath}
+                      onChange={(e) => setManualPath(e.target.value)}
+                      isDisabled={isValidating}
+                      className="flex-1"
+                      description="Full path to your GGUF model file"
+                    />
+                    <Button
+                      onPress={handleManualPath}
+                      color="primary"
+                      isLoading={isValidating}
+                      isDisabled={isValidating || !manualPath.trim()}
+                      className="sm:self-end"
                     >
-                      Hugging Face
-                    </a>
-                  </li>
-                  <li>Save it to your computer (e.g., Downloads folder)</li>
-                  <li>
-                    Copy the full file path (step-by-step below)
-                  </li>
-                  <li>Paste it in the "Enter File Path" field and click Validate</li>
-                </ol>
-              </div>
-
-              <Divider />
-
-              {/* How to Get File Path */}
-              <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
-                <p className="text-sm font-semibold text-slate-300 mb-3">
-                  📍 How to Find Your File Path
-                </p>
-                <div className="space-y-3 text-xs text-slate-400">
-                  <div>
-                    <p className="font-medium text-slate-300 mb-1">Windows:</p>
-                    <ol className="list-decimal list-inside space-y-1">
-                      <li>Right-click your .gguf file</li>
-                      <li>Click "Copy as path"</li>
-                      <li>
-                        Paste below (e.g., C:\\Users\\YourName\\Downloads\\model.gguf)
-                      </li>
-                    </ol>
-                  </div>
-                  <Divider className="my-2" />
-                  <div>
-                    <p className="font-medium text-slate-300 mb-1">Mac/Linux:</p>
-                    <ol className="list-decimal list-inside space-y-1">
-                      <li>Open Terminal in the folder with your model</li>
-                      <li>Type: pwd (press Enter)</li>
-                      <li>Copy the path, add /model.gguf</li>
-                      <li>
-                        Paste below (e.g., /Users/YourName/Downloads/model.gguf)
-                      </li>
-                    </ol>
+                      Validate
+                    </Button>
                   </div>
                 </div>
-              </div>
 
-              <Divider />
+                <Separator />
 
-              {/* Manual Path Entry - RECOMMENDED METHOD */}
-              <div>
-                <p className="text-sm font-semibold mb-3 text-slate-200">
-                  Enter File Path (Recommended)
-                </p>
-                <div className="flex gap-2 flex-col sm:flex-row">
-                  <Input
-                    placeholder="/home/user/Downloads/model.gguf"
-                    value={manualPath}
-                    onValueChange={setManualPath}
-                    isDisabled={isValidating}
-                    className="flex-1"
-                    description="Full path to your GGUF model file"
+                {/* File Picker - Reference Only */}
+                <div>
+                  <p className="text-sm font-semibold mb-2 text-slate-200">
+                    Or Select File (Reference)
+                  </p>
+                  <Alert status="warning">
+                    <Alert.Content>
+                      <Alert.Title>Browser Limitation</Alert.Title>
+                      <Alert.Description>
+                        Browsers cannot access file paths for security. Use the path entry method above.
+                      </Alert.Description>
+                    </Alert.Content>
+                  </Alert>
+                  <input
+                    type="file"
+                    accept=".gguf"
+                    onChange={handleFileSelect}
+                    disabled={isValidating}
+                    className="mt-3 block w-full text-sm text-slate-400
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-slate-700 file:text-slate-100
+                      hover:file:bg-slate-600
+                      cursor-pointer disabled:opacity-50"
                   />
-                  <Button
-                    onPress={handleManualPath}
-                    color="primary"
-                    isLoading={isValidating}
-                    isDisabled={isValidating || !manualPath.trim()}
-                    className="sm:self-end"
-                  >
-                    Validate
-                  </Button>
+                </div>
+
+                {/* Help Text */}
+                <div className="bg-slate-800 border border-slate-700 rounded-lg p-3">
+                  <p className="text-xs text-slate-400">
+                    <strong>Requirements:</strong> GGUF format, minimum 100MB,
+                    compatible with llama.cpp. Typical models are 30-40GB.
+                  </p>
                 </div>
               </div>
-
-              <Divider />
-
-              {/* File Picker - Reference Only */}
-              <div>
-                <p className="text-sm font-semibold mb-2 text-slate-200">
-                  Or Select File (Reference)
-                </p>
-                <Alert
-                  color="warning"
-                  title="Browser Limitation"
-                  description="Browsers cannot access file paths for security. Use the path entry method above."
-                />
-                <input
-                  type="file"
-                  accept=".gguf"
-                  onChange={handleFileSelect}
-                  disabled={isValidating}
-                  className="mt-3 block w-full text-sm text-slate-400
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-md file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-slate-700 file:text-slate-100
-                    hover:file:bg-slate-600
-                    cursor-pointer disabled:opacity-50"
-                />
-              </div>
-
-              {/* Help Text */}
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-3">
-                <p className="text-xs text-slate-400">
-                  <strong>Requirements:</strong> GGUF format, minimum 100MB,
-                  compatible with llama.cpp. Typical models are 30-40GB.
-                </p>
-              </div>
-            </div>
-          </ModalBody>
-          <Divider />
-          <ModalFooter>
-            <Button
-              color="danger"
-              variant="light"
-              onPress={() => setIsOpen(false)}
-              isDisabled={isValidating}
-            >
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
+            </Modal.Body>
+            <Separator />
+            <Modal.Footer>
+              <Button
+                color="danger"
+                variant="light"
+                onPress={() => modalState.close()}
+                isDisabled={isValidating}
+              >
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
       </Modal>
     </>
   );

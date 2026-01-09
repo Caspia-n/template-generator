@@ -2,7 +2,7 @@
 
 import { TemplateForm } from '@/components/TemplateForm'
 import { ModelPicker } from '@/components/ModelPicker'
-import { Divider, Button } from '@heroui/react'
+import { Separator, Button } from '@heroui/react'
 import { useTheme } from 'next-themes'
 import { Moon, Sun } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -51,7 +51,7 @@ export default function HomePage() {
         </main>
 
         <footer className="mt-10">
-          <Divider className="mb-6" />
+          <Separator className="mb-6" />
           <div className="flex flex-col items-center justify-between gap-3 text-sm text-slate-300 sm:flex-row">
             <div className="flex gap-4">
               <Link href="/dashboard" className="hover:text-slate-50" aria-label="Go to Dashboard">

@@ -2,7 +2,7 @@
 
 import type { Template } from '@/lib/types'
 import { deleteTemplate as deleteFromStorage, loadAllTemplates } from '@/lib/storage'
-import { Button, Card, CardBody, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/react'
+import { Button, Card, Input, Modal, useOverlayState } from '@heroui/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { useToast } from './Toasts'
@@ -28,6 +28,7 @@ function formatRelative(iso: string): string {
 export function Dashboard() {
   const router = useRouter()
   const toast = useToast()
+  const deleteModalState = useOverlayState()
 
   const [templates, setTemplates] = useState<Template[]>([])
   const [query, setQuery] = useState('')
@@ -53,6 +54,7 @@ export function Dashboard() {
 
   const handleDelete = (t: Template) => {
     setTemplateToDelete(t)
+    deleteModalState.open()
   }
 
   const confirmDelete = () => {
@@ -61,6 +63,7 @@ export function Dashboard() {
     setTemplates((prev) => prev.filter((t) => t.id !== templateToDelete.id))
     toast.success('Template deleted')
     setTemplateToDelete(null)
+    deleteModalState.close()
   }
 
   const exportTemplate = (t: Template) => {
@@ -94,7 +97,7 @@ export function Dashboard() {
         <div className="flex-1">
           <Input
             value={query}
-            onValueChange={setQuery}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Search templates…"
             startContent={<Search className="h-4 w-4 text-slate-400" />}
             aria-label="Search templates"
@@ -128,7 +131,7 @@ export function Dashboard() {
         </div>
       ) : filtered.length === 0 ? (
         <Card>
-          <CardBody className="p-10 text-center">
+          <Card.Content className="p-10 text-center">
             <div className="mx-auto max-w-md space-y-3">
               <h2 className="text-lg font-semibold text-slate-100">No templates</h2>
               <p className="text-sm text-slate-300">
@@ -140,7 +143,7 @@ export function Dashboard() {
                 </Button>
               )}
             </div>
-          </CardBody>
+          </Card.Content>
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -153,7 +156,7 @@ export function Dashboard() {
               whileHover={{ scale: 1.01 }}
             >
               <Card className="h-full">
-                <CardBody className="flex h-full flex-col gap-4 p-5">
+                <Card.Content className="flex h-full flex-col gap-4 p-5">
                   <div className="flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="line-clamp-2 text-base font-semibold text-slate-100">{t.title}</h3>
@@ -200,30 +203,36 @@ export function Dashboard() {
                       Delete
                     </Button>
                   </div>
-                </CardBody>
+                </Card.Content>
               </Card>
             </motion.div>
           ))}
         </div>
       )}
 
-      <Modal isOpen={!!templateToDelete} onOpenChange={() => setTemplateToDelete(null)} aria-label="Delete confirmation">
-        <ModalContent>
-          <ModalHeader>Delete template</ModalHeader>
-          <ModalBody>
-            <p className="text-sm text-slate-300">
-              Are you sure you want to delete <span className="font-medium text-slate-100">{templateToDelete?.title}</span>?
-            </p>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="bordered" onPress={() => setTemplateToDelete(null)} aria-label="Cancel deletion">
-              Cancel
-            </Button>
-            <Button color="danger" onPress={confirmDelete} aria-label="Confirm deletion">
-              Delete
-            </Button>
-          </ModalFooter>
-        </ModalContent>
+      <Modal state={deleteModalState} aria-label="Delete confirmation">
+        <Modal.Backdrop />
+        <Modal.Container>
+          <Modal.Dialog>
+            <Modal.Header>
+              <Modal.Heading>Delete template</Modal.Heading>
+              <Modal.CloseTrigger />
+            </Modal.Header>
+            <Modal.Body>
+              <p className="text-sm text-slate-300">
+                Are you sure you want to delete <span className="font-medium text-slate-100">{templateToDelete?.title}</span>?
+              </p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="bordered" onPress={() => deleteModalState.close()} aria-label="Cancel deletion">
+                Cancel
+              </Button>
+              <Button color="danger" onPress={confirmDelete} aria-label="Confirm deletion">
+                Delete
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
       </Modal>
 
       <MCPConfigEditor isOpen={isConfigOpen} onOpenChange={setIsConfigOpen} />

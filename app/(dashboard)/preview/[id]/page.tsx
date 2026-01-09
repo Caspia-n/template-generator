@@ -6,7 +6,7 @@ import type { Template } from '@/lib/types'
 import { loadTemplate } from '@/lib/storage'
 import { LoadingState } from '@/components/LoadingState'
 import { TemplatePreview } from '@/components/TemplatePreview'
-import { Button, Card, CardBody } from '@heroui/react'
+import { Button, Card } from '@heroui/react'
 import { ArrowLeft } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -60,7 +60,7 @@ export default function PreviewPage() {
         <LoadingState isLoading={isLoading} message="Loading template…">
           {error ? (
             <Card>
-              <CardBody className="p-8 text-center">
+              <Card.Content className="p-8 text-center">
                 <h1 className="text-xl font-semibold text-slate-100">{error}</h1>
                 <p className="mt-2 text-sm text-slate-300">Try creating a new template from the home page.</p>
                 <div className="mt-6">
@@ -68,7 +68,7 @@ export default function PreviewPage() {
                     Go Home
                   </Button>
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
           ) : template ? (
             <TemplatePreview template={template} />
