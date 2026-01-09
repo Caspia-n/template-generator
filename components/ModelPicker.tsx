@@ -229,7 +229,7 @@ Example paths:
                   console.log("[ModelPicker] Opening model picker modal");
                   modalState.open();
                 }}
-                color={modelPath ? "default" : "primary"}
+                variant={modelPath ? "secondary" : "primary"}
                 size="sm"
               >
                 {modelPath ? "Change" : "Select"}
@@ -327,8 +327,7 @@ Example paths:
                     />
                     <Button
                       onPress={handleManualPath}
-                      color="primary"
-                      isLoading={isValidating}
+                      variant="primary"
                       isDisabled={isValidating || !manualPath.trim()}
                       className="sm:self-end"
                     >
@@ -379,8 +378,7 @@ Example paths:
             <Separator />
             <Modal.Footer>
               <Button
-                color="danger"
-                variant="ghost"
+                variant="danger"
                 onPress={() => modalState.close()}
                 isDisabled={isValidating}
               >

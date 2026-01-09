@@ -64,7 +64,7 @@ export default function PreviewPage() {
                 <h1 className="text-xl font-semibold text-slate-100">{error}</h1>
                 <p className="mt-2 text-sm text-slate-300">Try creating a new template from the home page.</p>
                 <div className="mt-6">
-                  <Button color="primary" onPress={() => router.push('/')} aria-label="Go home">
+                  <Button variant="primary" onPress={() => router.push('/')} aria-label="Go home">
                     Go Home
                   </Button>
                 </div>

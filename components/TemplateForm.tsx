@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { GenerationRequestSchema, type GenerationRequest } from '@/lib/validation'
 import type { MCPServer, Template } from '@/lib/types'
-import { Button, Select, Switch, TextArea, ListBox, ListBoxItem } from '@heroui/react'
+import { Button, Select, Switch, TextArea, ListBox, ListBoxItem, TextField, Label } from '@heroui/react'
 import { useRouter } from 'next/navigation'
 import { useToast } from './Toasts'
 import { nanoid } from 'nanoid'
@@ -186,18 +186,18 @@ export function TemplateForm() {
           name="description"
           control={control}
           render={({ field }) => (
-            <TextArea
-              label="Describe your template"
-              placeholder='e.g., "fitness tracker with weekly goals"'
-              minRows={4}
-              value={field.value}
-              onChange={(e) => field.onChange(e.target.value)}
-              isRequired
-              isDisabled={isSubmitting}
-              isInvalid={!!errors.description}
-              errorMessage={errors.description?.message}
-              aria-label="Describe your template"
-            />
+            <TextField isRequired isInvalid={!!errors.description}>
+              <Label>Describe your template</Label>
+              <TextArea
+                placeholder='e.g., "fitness tracker with weekly goals"'
+                rows={4}
+                value={field.value}
+                onChange={(e) => field.onChange(e.target.value)}
+                isDisabled={isSubmitting}
+                aria-label="Describe your template"
+              />
+              {errors.description && <p className="text-sm text-red-400 mt-1">{errors.description.message}</p>}
+            </TextField>
           )}
         />
 
@@ -205,28 +205,30 @@ export function TemplateForm() {
           name="theme"
           control={control}
           render={({ field }) => (
-            <Select
-              selectedKey={field.value}
-              onSelectionChange={(key) => field.onChange(key as FormValues['theme'])}
-              isDisabled={isSubmitting}
-              isInvalid={!!errors.theme}
-              placeholder="Select a theme"
-              label="Theme"
-              aria-label="Theme picker"
-            >
-              <Select.Trigger>
-                <Select.Value />
-                <Select.Indicator />
-              </Select.Trigger>
-              <Select.Popover>
-                <ListBox>
-                  <ListBoxItem id="light">Light</ListBoxItem>
-                  <ListBoxItem id="dark">Dark</ListBoxItem>
-                  <ListBoxItem id="system">System</ListBoxItem>
-                  <ListBoxItem id="custom">Custom</ListBoxItem>
-                </ListBox>
-              </Select.Popover>
-            </Select>
+            <TextField isInvalid={!!errors.theme}>
+              <Label>Theme</Label>
+              <Select
+                selectedKey={field.value}
+                onSelectionChange={(key) => field.onChange(key as FormValues['theme'])}
+                isDisabled={isSubmitting}
+                placeholder="Select a theme"
+                aria-label="Theme picker"
+              >
+                <Select.Trigger>
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    <ListBoxItem id="light">Light</ListBoxItem>
+                    <ListBoxItem id="dark">Dark</ListBoxItem>
+                    <ListBoxItem id="system">System</ListBoxItem>
+                    <ListBoxItem id="custom">Custom</ListBoxItem>
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+              {errors.theme && <p className="text-sm text-red-400 mt-1">{errors.theme.message}</p>}
+            </TextField>
           )}
         />
 
@@ -258,30 +260,32 @@ export function TemplateForm() {
               name="selectedServers"
               control={control}
               render={({ field }) => (
-                <Select
-                  selectionMode="multiple"
-                  selectedKeys={new Set(field.value)}
-                  onSelectionChange={(keys) => field.onChange(Array.from(keys) as string[])}
-                  isDisabled={isSubmitting || !useMCP || availableServerItems.length === 0}
-                  placeholder={availableServerItems.length ? 'Select servers' : 'No servers found'}
-                  label="MCP Servers"
-                  aria-label="Available MCP servers"
-                >
-                  <Select.Trigger>
-                    <Select.Value />
-                    <Select.Indicator />
-                  </Select.Trigger>
-                  <Select.Popover>
-                    <ListBox items={availableServerItems}>
-                      {(server) => <ListBoxItem id={server.id}>{server.name}</ListBoxItem>}
-                    </ListBox>
-                  </Select.Popover>
-                </Select>
+                <TextField>
+                  <Label>MCP Servers</Label>
+                  <Select
+                    selectionMode="multiple"
+                    selectedKeys={new Set(field.value)}
+                    onSelectionChange={(keys) => field.onChange(Array.from(keys) as string[])}
+                    isDisabled={isSubmitting || !useMCP || availableServerItems.length === 0}
+                    placeholder={availableServerItems.length ? 'Select servers' : 'No servers found'}
+                    aria-label="Available MCP servers"
+                  >
+                    <Select.Trigger>
+                      <Select.Value />
+                      <Select.Indicator />
+                    </Select.Trigger>
+                    <Select.Popover>
+                      <ListBox items={availableServerItems}>
+                        {(server) => <ListBoxItem id={server.id}>{server.name}</ListBoxItem>}
+                      </ListBox>
+                    </Select.Popover>
+                  </Select>
+                  {errors.selectedServers?.message && (
+                    <p className="mt-2 text-sm text-red-400">{errors.selectedServers.message}</p>
+                  )}
+                </TextField>
               )}
             />
-            {errors.selectedServers?.message && (
-              <p className="mt-2 text-sm text-red-400">{errors.selectedServers.message}</p>
-            )}
           </div>
         </details>
 
@@ -293,8 +297,7 @@ export function TemplateForm() {
 
         <Button
           type="submit"
-          color={modelPath ? "primary" : "default"}
-          isLoading={isSubmitting}
+          variant={modelPath ? "primary" : "secondary"}
           isDisabled={isSubmitting || !modelPath}
           className="w-full"
           aria-label="Generate Template"

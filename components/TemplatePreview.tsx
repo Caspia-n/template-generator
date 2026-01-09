@@ -177,31 +177,31 @@ export function TemplatePreview({ template }: { template: Template }) {
             <div className="space-y-2">
               <Button
                 variant="tertiary"
-                startContent={<LayoutDashboard className="h-4 w-4" />}
                 onPress={() => router.push("/dashboard")}
                 aria-label="Back to Dashboard"
                 className="w-full"
               >
+                <LayoutDashboard className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
 
               <Button
                 variant="secondary"
-                startContent={<Download className="h-4 w-4" />}
                 onPress={exportJson}
                 aria-label="Export JSON"
                 className="w-full"
               >
+                <Download className="h-4 w-4 mr-2" />
                 Export JSON
               </Button>
 
               <Button
                 variant="secondary"
-                startContent={<Copy className="h-4 w-4" />}
                 onPress={copyShareLink}
                 aria-label="Copy share link"
                 className="w-full"
               >
+                <Copy className="h-4 w-4 mr-2" />
                 Copy share link
               </Button>
             </div>

@@ -95,29 +95,33 @@ export function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search templates…"
-            startContent={<Search className="h-4 w-4 text-slate-400" />}
-            aria-label="Search templates"
-          />
+          <InputGroup>
+            <InputGroup.Prefix>
+              <Search className="h-4 w-4 text-slate-400" />
+            </InputGroup.Prefix>
+            <InputGroup.Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search templates…"
+              aria-label="Search templates"
+            />
+          </InputGroup>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button
-            color="primary"
-            startContent={<Plus className="h-4 w-4" />}
+            variant="primary"
             onPress={() => router.push('/')}
             aria-label="New Template"
           >
+            <Plus className="h-4 w-4 mr-2" />
             New Template
           </Button>
           <Button
             variant="secondary"
-            startContent={<Settings2 className="h-4 w-4" />}
             onPress={() => setIsConfigOpen(true)}
             aria-label="Edit MCP Config"
           >
+            <Settings2 className="h-4 w-4 mr-2" />
             Edit MCP Config
           </Button>
         </div>
@@ -138,7 +142,7 @@ export function Dashboard() {
                 {templates.length === 0 ? 'Create your first template to get started.' : 'No templates match your search.'}
               </p>
               {templates.length === 0 && (
-                <Button color="primary" onPress={() => router.push('/')} aria-label="Create new template">
+                <Button variant="primary" onPress={() => router.push('/')} aria-label="Create new template">
                   Create New
                 </Button>
               )}
@@ -171,35 +175,34 @@ export function Dashboard() {
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="tertiary"
-                      startContent={<Eye className="h-4 w-4" />}
                       onPress={() => router.push(`/preview/${t.id}`)}
                       aria-label={`Preview ${t.title}`}
                     >
+                      <Eye className="h-4 w-4 mr-2" />
                       Preview
                     </Button>
                     <Button
                       variant="secondary"
-                      startContent={<Download className="h-4 w-4" />}
                       onPress={() => exportTemplate(t)}
                       aria-label={`Export ${t.title}`}
                     >
+                      <Download className="h-4 w-4 mr-2" />
                       Export
                     </Button>
                     <Button
                       variant="secondary"
-                      startContent={<Copy className="h-4 w-4" />}
                       onPress={() => shareTemplate(t)}
                       aria-label={`Share ${t.title}`}
                     >
+                      <Copy className="h-4 w-4 mr-2" />
                       Share
                     </Button>
                     <Button
-                      color="danger"
-                      variant="secondary"
-                      startContent={<Trash2 className="h-4 w-4" />}
+                      variant="danger"
                       onPress={() => handleDelete(t)}
                       aria-label={`Delete ${t.title}`}
                     >
+                      <Trash2 className="h-4 w-4 mr-2" />
                       Delete
                     </Button>
                   </div>
@@ -227,7 +230,7 @@ export function Dashboard() {
               <Button variant="secondary" onPress={() => deleteModalState.close()} aria-label="Cancel deletion">
                 Cancel
               </Button>
-              <Button color="danger" onPress={confirmDelete} aria-label="Confirm deletion">
+              <Button variant="danger" onPress={confirmDelete} aria-label="Confirm deletion">
                 Delete
               </Button>
             </Modal.Footer>
