@@ -2,10 +2,14 @@
   "name": "notion-template-generator",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "electron": "electron .",
+    "electron:dev": "concurrently \"cross-env BROWSER=none next dev\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development ELECTRON_START_URL=http://localhost:3000 electron .\"",
+    "electron:build": "next build && electron-builder",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
@@ -13,6 +17,29 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "format": "prettier --write ."
+  },
+  "build": {
+    "appId": "com.notion-template-generator",
+    "productName": "Notion Template Generator",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      ".next/**/*",
+      "public/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^0.1.0",
@@ -50,13 +77,18 @@
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^34.0.0",
+    "electron-builder": "^25.2.0",
     "eslint": "^9.15.0",
     "eslint-config-next": "^16.1.1",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "wait-on": "^8.0.1"
   },
   "engines": {
     "node": ">=18.0.0",
