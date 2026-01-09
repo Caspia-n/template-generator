@@ -109,7 +109,13 @@ export function TemplateForm() {
   useEffect(() => {
     // Load model path from localStorage
     const saved = localStorage.getItem("selectedModelPath");
+    console.log("[TemplateForm] Loading model path from localStorage:", saved);
     setModelPath(saved);
+    if (saved) {
+      console.log("[TemplateForm] Model path loaded successfully");
+    } else {
+      console.log("[TemplateForm] No model path found in localStorage");
+    }
   }, [])
 
   const availableServerItems = useMemo(() => {
@@ -117,13 +123,23 @@ export function TemplateForm() {
   }, [servers])
 
   const onSubmit = async (values: FormValues) => {
-    setFormError(null)
+    console.log("[TemplateForm] Form submission started", {
+      hasModelPath: !!modelPath,
+      modelPath: modelPath,
+      description: values.description,
+      theme: values.theme
+    });
+    
+    setFormError(null);
 
     if (!modelPath) {
+      console.log("[TemplateForm] Form submission failed: no model path");
       toast.error("Please select an AI model first");
       return;
     }
 
+    console.log("[TemplateForm] Submitting generation request to /api/generate");
+    
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -134,12 +150,16 @@ export function TemplateForm() {
         body: JSON.stringify({ ...values, modelPath }),
       });
 
+      console.log("[TemplateForm] API response status:", response.status);
+
       if (!response.ok) {
         const result = await response.json();
+        console.error("[TemplateForm] API error:", result);
         throw new Error(result.error || "Generation failed");
       }
 
       const result = await response.json();
+      console.log("[TemplateForm] Generation successful:", result);
       
       // Save template to local storage
       saveTemplate(result.template);
@@ -148,6 +168,7 @@ export function TemplateForm() {
       router.push(`/preview/${result.template.id}`);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to create template'
+      console.error("[TemplateForm] Form submission error:", e);
       setFormError(message)
       toast.error(message)
     }
