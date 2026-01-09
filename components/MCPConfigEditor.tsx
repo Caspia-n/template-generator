@@ -209,7 +209,7 @@ export function MCPConfigEditor({
                   value={jsonText}
                   onChange={(e) => setJsonText(e.target.value)}
                   rows={16}
-                  isDisabled={isLoading || isSaving}
+                  disabled={isLoading || isSaving}
                   aria-label="MCP servers JSON"
                   className="min-h-[400px]"
                 />
@@ -235,7 +235,7 @@ export function MCPConfigEditor({
                         <Input
                           {...field}
                           placeholder="Notion MCP"
-                          isDisabled={isLoading || isSaving}
+                          disabled={isLoading || isSaving}
                           aria-label="Server name"
                         />
                       </TextField>
@@ -252,7 +252,7 @@ export function MCPConfigEditor({
                         <Input
                           {...field}
                           placeholder="https://mcp.example.com"
-                          isDisabled={isLoading || isSaving}
+                          disabled={isLoading || isSaving}
                           aria-label="Server URL"
                         />
                       </TextField>
@@ -263,28 +263,30 @@ export function MCPConfigEditor({
                     name="auth_type"
                     control={control}
                     render={({ field }) => (
-                      <Select
-                        label="Auth type"
-                        selectedKey={field.value}
-                        onSelectionChange={(key) => {
-                          const next = key as MCPServer['auth_type']
-                          if (next) field.onChange(next)
-                        }}
-                        isDisabled={isLoading || isSaving}
-                        aria-label="Auth type"
-                      >
-                        <Select.Trigger>
-                          <Select.Value />
-                          <Select.Indicator />
-                        </Select.Trigger>
-                        <Select.Popover>
-                          <ListBox>
-                            <ListBoxItem id="oauth_2.1">oauth_2.1</ListBoxItem>
-                            <ListBoxItem id="bearer">bearer</ListBoxItem>
-                            <ListBoxItem id="none">none</ListBoxItem>
-                          </ListBox>
-                        </Select.Popover>
-                      </Select>
+                      <TextField>
+                        <Label>Auth type</Label>
+                        <Select
+                          selectedKey={field.value}
+                          onSelectionChange={(key) => {
+                            const next = key as MCPServer['auth_type']
+                            if (next) field.onChange(next)
+                          }}
+                          isDisabled={isLoading || isSaving}
+                          aria-label="Auth type"
+                        >
+                          <Select.Trigger>
+                            <Select.Value />
+                            <Select.Indicator />
+                          </Select.Trigger>
+                          <Select.Popover>
+                            <ListBox>
+                              <ListBoxItem id="oauth_2.1">oauth_2.1</ListBoxItem>
+                              <ListBoxItem id="bearer">bearer</ListBoxItem>
+                              <ListBoxItem id="none">none</ListBoxItem>
+                            </ListBox>
+                          </Select.Popover>
+                        </Select>
+                      </TextField>
                     )}
                   />
 
@@ -298,7 +300,7 @@ export function MCPConfigEditor({
                           {...field}
                           placeholder=""
                           type="password"
-                          isDisabled={isLoading || isSaving}
+                          disabled={isLoading || isSaving}
                           aria-label="API key"
                         />
                       </TextField>
@@ -329,7 +331,6 @@ export function MCPConfigEditor({
                         <Button
                           isIconOnly
                           variant="ghost"
-                          color="danger"
                           onPress={() => onDeleteServer(s.id)}
                           aria-label={`Delete ${s.name}`}
                         >
