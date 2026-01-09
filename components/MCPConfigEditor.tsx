@@ -353,7 +353,12 @@ export function MCPConfigEditor({
           </Modal.Body>
 
           <Modal.Footer>
-            <Button variant="secondary" onPress={() => modalState.close()} aria-label="Close">
+            <Button 
+              variant="secondary" 
+              disabled={isLoading || isSaving}
+              onPress={() => modalState.close()} 
+              aria-label="Close"
+            >
               Close
             </Button>
           </Modal.Footer>
